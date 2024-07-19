@@ -15,10 +15,12 @@ jobs:
     - name: Set up environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y jq curl gh python3
-        # Add any other dependencies your script needs
+        sudo apt-get install -y jq curl gh python3 python3-pip
+        pip3 install python-dateutil
 
     - name: Run script
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: bash ./dashboard.sh
 
     - name: Commit and push changes
@@ -26,6 +28,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         mv dashboard.html tmp.html
+        git fetch gh-pages
         git checkout gh-pages
         mv tmp.html dashboard.html
         git add dashboard.html
