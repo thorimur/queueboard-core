@@ -2,7 +2,7 @@ name: Publish Dashboard
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Runs every hour, on the hour
+    - cron: '* * * * *'  # Runs every minute
 
 jobs:
   publish:
