@@ -28,7 +28,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         mv dashboard.html tmp.html
-        git fetch gh-pages
+        git fetch origin gh-pages
         git checkout gh-pages
         mv tmp.html dashboard.html
         git add dashboard.html
