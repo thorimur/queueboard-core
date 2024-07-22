@@ -54,7 +54,7 @@ def print_html5_footer():
     </html>
     """)
 
-# An HTML link to a mathlib PR
+# An HTML link to a mathlib PR from the PR number
 def pr_link(number, url):
     return "<a href='{}'>#{}</a>".format(url, number)
 
@@ -63,6 +63,10 @@ def user_link(author):
     login = author["login"]
     url   = author["url"]
     return "<a href='{}'>{}</a>".format(url, login)
+
+# An HTML link to a mathlib PR from the PR title
+def pr_title(title, url):
+    return "<a href='{}'>{}</a>".format(url, title)
 
 # An HTML link to a Github label in the mathlib repo
 def label_link(label):
@@ -130,7 +134,7 @@ def print_dashboard(data):
             print("<tr>")
             print("<td>{}</td>".format(pr_link(entry["number"], entry["url"])))
             print("<td>{}</td>".format(user_link(entry["author"])))
-            print("<td>{}</td>".format(entry["title"]))
+            print("<td>{}</td>".format(title_link(entry["title"], entry["url"])))
             print("<td>")
             for label in entry["labels"]["nodes"]:
                 print(label_link(label), end=' ')
