@@ -65,7 +65,7 @@ def user_link(author):
     return "<a href='{}'>{}</a>".format(url, login)
 
 # An HTML link to a mathlib PR from the PR title
-def pr_title(title, url):
+def title_link(title, url):
     return "<a href='{}'>{}</a>".format(url, title)
 
 # An HTML link to a Github label in the mathlib repo
