@@ -99,7 +99,9 @@ def suggest_reviewers(
                 reviewer_lab.remove("t-metaprogramming")
                 reviewer_lab.append("t-meta")
             match = [lab for lab in topic_labels if lab in reviewer_lab]
-            matching_reviewers.append((rev, match))
+            # Do not propose a PR's author as potential reviewer.
+            if rev.github != info.author:
+              matching_reviewers.append((rev, match))
     else:
         print(f"PR {number} has no topic labels: reviewer suggestions not implemented yet", file=sys.stderr)
         return ("no topic labels: suggestions not implemented yet", [])
