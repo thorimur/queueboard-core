@@ -408,7 +408,7 @@ def _compute_pr_entries(
             last_update = aggregate_information[pr.number].last_status_change
             if last_update is not None and last_update.status != DataStatus.Missing:
                 date = str(last_update.time).replace("+00:00", "")
-                prefix = hide(format_delta2(now - last_update.time))
+                prefix = hide(format_delta2(datetime.now(timezone.utc) - last_update.time))
                 real_update = f'{prefix}<a title="{date}">{format_delta(last_update.delta)} ago</a>'
                 if last_update.status == DataStatus.Incomplete:
                     real_update += '<a title="caution: this data is likely incomplete">*</a>'
