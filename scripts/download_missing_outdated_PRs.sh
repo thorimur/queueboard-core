@@ -45,7 +45,9 @@ function download_stubborn {
 # |download_pr $pr| downloads information for the PR $pr into the appropriate directory.
 # It consults $stubborn_prs to determine whether to treat a PR as stubborn or not.
 function download_pr {
-  if [[ $stubborn_prs == *$1* ]]; then
+  # Make sure to only match whole-word boundaries, i.e. PRs 15158 or 19585 being stubborn
+  # does not mean PR 58 should be treated as stubborn.
+  if [[ -z $(echo $stubborn_prs | grep -w "$1") ]]; then
     download_stubborn $1
   else
     download_normal $1
