@@ -47,7 +47,7 @@ function download_stubborn {
 function download_pr {
   # Make sure to only match whole-word boundaries, i.e. PRs 15158 or 19585 being stubborn
   # does not mean PR 58 should be treated as stubborn.
-  if [[ -z $(echo $stubborn_prs | grep -w "$1") ]]; then
+  if [[ -n $(echo $stubborn_prs | grep -w "$1") ]]; then
     download_stubborn $1
   else
     download_normal $1
