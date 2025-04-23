@@ -225,7 +225,8 @@ def remove_broken_data(number: int, is_temporary: bool, no_remove: bool) -> None
     if not no_remove:
         dirname = f"{number}-temp" if is_temporary else str(number)
         shutil.rmtree(os.path.join("data", dirname))
-    def _inner(number: int, filename: str) -> None:
+    # Return whether the PR should now be marked as stubborn.
+    def _inner(number: int, filename: str) -> bool:
         # NB. We write a comment "second time" to both missing_prs.txt and closed_prs_to_backfill.txt
         # (as we don't know where the original one came from). This causes duplicate messages and entries,
         # but is otherwise harmless.
@@ -251,13 +252,14 @@ def remove_broken_data(number: int, is_temporary: bool, no_remove: bool) -> None
                 new_content = [line for line in content if line != str(number)]
                 with open(filename, "w") as fi:
                     fi.write('\n'.join(new_content) + '\n')
-                with open("stubborn_prs.txt", "a") as fi:
-                    fi.write(f"{number}\n")
+                return True
             else:
                 print(f"error: comment {previous_comments} for PR {number} is unexpected; aborting!")
-                return
-    _inner(number, "missing_prs.txt")
-    _inner(number, "closed_prs_to_backfill.txt")
+        return False
+    newly_stubborn = (_inner(number, "missing_prs.txt"), _inner(number, "closed_prs_to_backfill.txt"))
+    if newly_stubborn[0] or newly_stubborn[1]:
+        with open("stubborn_prs.txt", "a") as fi:
+            fi.write(f"{number}\n")
 
 
 # All data contained in the files all-open-PRs.json passed to the dashboard.
