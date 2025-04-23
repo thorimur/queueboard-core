@@ -456,7 +456,6 @@ def main() -> None:
         # The next run of this script will pick this up and try to download them.
         with open("redownload.txt", "r") as file:
             content2 = file.read().strip().splitlines()
-            file.readlines()
         if len(content2) != 4 and len(content2) > 1:
             return
         with open("redownload.txt", "w") as file:
