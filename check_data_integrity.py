@@ -236,7 +236,7 @@ def remove_broken_data(number: int, is_temporary: bool, no_remove: bool) -> None
         if not previous_comments:
             # No comment about the file: just write a comment 'second' time.
             with open(filename, "a") as fi:
-                fi.write(f"\n{comment_second}{number}\n")
+                fi.write(f"{comment_second}{number}\n")
         else:
             assert len(previous_comments) == 1
             new_content = content[:]
