@@ -217,9 +217,14 @@ def prune_missing_prs_files() -> List[int]:
 #   about this being the second (or third) time this PR is downloaded,
 # - if there was a comment about the third attempt, i.e. a download failed thrice in a row, mark this PR as stubborn.
 # 'prune_missing_prs_files()' ensures that no stale "third attempt" comments are left behind.
-def remove_broken_data(number: int, is_temporary: bool) -> None:
-    dirname = f"{number}-temp" if is_temporary else str(number)
-    shutil.rmtree(os.path.join("data", dirname))
+# If |is_temporary| is true, remove a '123-temp' directory instead.
+# If |no_remove| is true, don't try to remove any directory (but just mark the PR download as failed).
+# Recently, the temporary download directories are deleted by the shell script,
+# so there is no need to delete them again.
+def remove_broken_data(number: int, is_temporary: bool, no_remove: bool) -> None:
+    if not no_remove:
+        dirname = f"{number}-temp" if is_temporary else str(number)
+        shutil.rmtree(os.path.join("data", dirname))
     def _inner(number: int, filename: str) -> None:
         # NB. We write a comment "second time" to both missing_prs.txt and closed_prs_to_backfill.txt
         # (as we don't know where the original one came from). This causes duplicate messages and entries,
@@ -357,9 +362,17 @@ def main() -> None:
     outdated_aggressive = compare_data_aggressive()
 
     (normal_prs_with_errors, stubborn_prs_with_errors) = check_data_directory_contents()
+    lines = []
+    with open('broken_pr_data.txt', 'r') as fi:
+        lines = fi.readlines()
+    for line in lines:
+        if line:
+            print(f"trace: PR {line.strip()} had broken data; noting for future re-downloads")
+            normal_prs_with_errors.append((int(line), True))
+
     # Prune broken data for all PRs, and remove superfluous entries from 'missing_prs.txt'.
     for (pr_number, is_temporary) in normal_prs_with_errors:
-        remove_broken_data(pr_number, is_temporary)
+        remove_broken_data(pr_number, is_temporary, True)
     for pr_number in stubborn_prs_with_errors:
         shutil.rmtree(os.path.join("data", f"{pr_number}-basic"))
     current_missing_entries = prune_missing_prs_files()

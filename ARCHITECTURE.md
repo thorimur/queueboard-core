@@ -33,6 +33,7 @@ The `processed_data` directory contains results of data post-processing scripts.
 This post-processing includes merely extracting relevant information, but also some non-trivial analyses. For instance, for each PR, we try to determine the total time it was on the review queue and the last time its status changed (from e.g. awaiting author action to waiting on review).
 
 There are a few text files which hold state, about missing PRs or PRs which might need special handling.
+- `broken_pr_data.txt` is a transient file not committed to this repository: `download_missing_outdated_PRs.sh` write information about any PR with broken data to this file; `check_data_integrity.py` reads it
 - `missing_prs.txt` lists open PRs for which data is entirely missing
 (This could happen, for example, if there is an error in the downloading workflow. In practice, this is rare.)
 It also contains comments if downloading a PR's data failed already: if downloading a PR's data failed for three times in a row,
@@ -43,11 +44,13 @@ the PR is marked as "stubborn" and listed in `stubborn_prs.txt` instead.
 
 `check_data_integrity.py` is a script to verify the contents of the downloaded data, and detect broken data. It performs a variety of small tasks
 - detect broken json files (and automatically removes them), marking PRs as stubborn if necessary
+  The latter task also takes `broken_pr_data.txt` into account.
 - detect PRs whose data is surely out of date (and schedules them for re-downloading)
 - prunes obsolete entries from `missing_prs.txt` and `closed_prs_to_backfill.txt`
 - compares PR data from the aggregate files and the current REST API calls, and highlights differences which suggest out-of-date PR data
 
 This script depends on quite a bit of file state:
+- `broken_pr_data.txt` (if created by `download_missing_outdated_PRs.sh`)
 - the entire `data` directory
 - the aggregate json files
 - all text files about files to (re-)download
@@ -56,8 +59,8 @@ This script depends on quite a bit of file state:
 It modifies these *.txt files, and deletes any directories in `data` with obsolete data.
 
 The actual downloading of new or updated metadata happens through two scripts.
-- `scripts/download_missing_outdated_PRs.sh` uses the information in the *.txt files to download metadata
-for missing PRs, and re-downloads data for PRs marked as such. If successful, it empties the file `redownload.txt`.
+- `scripts/download_missing_outdated_PRs.sh` uses the information in the *.txt files to download metadata for missing PRs,
+  and re-downloads data for PRs marked as such. If successful, it empties the file `redownload.txt`.
 - `scripts/gather_stats.sh` queries the github API for all PRs updated in the past N minutes and downloads the data for all of them (overwriting any previous data).
 - `gather_stats_single.yml` is currently unused; TODO document what it is meant to do!
 

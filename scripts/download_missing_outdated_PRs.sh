@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Download PRs which were manually marked as outdated or needed for re-download.
+# After this script runs, all non-stubborn PRs whose download failed are written to broken_pr_data.txt.
 
 # Surface errors in this script to CI, so they get noticed.
 # See e.g. http://redsymbol.net/articles/unofficial-bash-strict-mode/ for explanation.
@@ -26,10 +27,10 @@ function download_normal {
     # "parse error: Invalid numeric literal at line N, column M'" comes from jq complaining about e.g. an empty file.
 
     # Save the output to a temporary directory, which we delete in case anything goes wrong.
-    { scripts/pr_info.sh "$1" | jq '.' > "$tmpdir/pr_info.json"; } || { rm -r -f $tmpdir && return 1; }
+    { scripts/pr_info.sh "$1" | jq '.' > "$tmpdir/pr_info.json"; } || { echo "$1" >> "broken_pr_data.txt"; rm -r -f $tmpdir && return 1; }
     # Save the current timestamp.
     echo "$CURRENT_TIME" > "$tmpdir/timestamp.txt"
-    { scripts/pr_reactions.sh "$1" | jq '.' > "$tmpdir/pr_reactions.json"; } || { rm -r -f $tmpdir && return 1; }
+    { scripts/pr_reactions.sh "$1" | jq '.' > "$tmpdir/pr_reactions.json"; } || { echo "$1" >> "broken_pr_data.txt"; rm -r -f $tmpdir && return 1; }
     rm -r -f $dir
     mv -f $tmpdir/ $dir/
 }
