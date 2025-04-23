@@ -247,7 +247,7 @@ def remove_broken_data(number: int, is_temporary: bool) -> None:
                 with open(filename, "w") as fi:
                     fi.write('\n'.join(new_content) + '\n')
                 with open("stubborn_prs.txt", "a") as fi:
-                    fi.write(f"\n{number}\n")
+                    fi.write(f"{number}\n")
             else:
                 print(f"error: comment {previous_comments} for PR {number} is unexpected; aborting!")
                 return
