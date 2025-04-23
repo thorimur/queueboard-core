@@ -356,7 +356,6 @@ def compare_data_aggressive() -> List[int]:
 def main() -> None:
     outdated_aggressive = compare_data_aggressive()
 
-    # "Last updated" information as found in the aggregate data file.
     (normal_prs_with_errors, stubborn_prs_with_errors) = check_data_directory_contents()
     # Prune broken data for all PRs, and remove superfluous entries from 'missing_prs.txt'.
     for (pr_number, is_temporary) in normal_prs_with_errors:
@@ -369,6 +368,7 @@ def main() -> None:
 
     # "Last updated" information as returned from a fresh github query.
     current_last_updated = extract_last_update_from_input()
+    # "Last updated" information as found in the aggregate data file.
     aggregate_last_updated: dict[int, AggregateData] = dict()
     with open(os.path.join("processed_data", "all_pr_data.json"), "r") as aggregate_file:
         data = json.load(aggregate_file)
