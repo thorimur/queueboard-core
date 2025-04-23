@@ -365,8 +365,11 @@ def main() -> None:
 
     (normal_prs_with_errors, stubborn_prs_with_errors) = check_data_directory_contents()
     lines = []
-    with open('broken_pr_data.txt', 'r') as fi:
-        lines = fi.readlines()
+    try:
+        with open('broken_pr_data.txt', 'r') as fi:
+            lines = fi.readlines()
+    except FileNotFoundError:
+        pass
     for line in lines:
         if line:
             print(f"trace: PR {line.strip()} had broken data; noting for future re-downloads")
