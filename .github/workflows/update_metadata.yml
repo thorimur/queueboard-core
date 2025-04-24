@@ -65,6 +65,7 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git add data
         git add processed_data
+        rm broken_pr_data.txt
         git add *.txt
         git commit -m 'Update data; redownload missing and outdated data; regenerate aggregate files'
 
