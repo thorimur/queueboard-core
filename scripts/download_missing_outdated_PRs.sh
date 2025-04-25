@@ -121,3 +121,21 @@ for pr in $stubborn_prs; do
   fi
 done
 echo "Backfilled up to 2 'stubborn' PRs successfully"
+
+# One-off task: check if there are any PRs missing from that list.
+# TODO: try the subsequent ranges next
+for pr in $(seq 1 5000); do
+  # Check if the directory exists
+  if [ -d "data/$pr" ]; then
+    echo "[skip] Data exists for #$pr: $CURRENT_TIME"
+    continue
+  fi
+
+  # Check if the number corresponds to a PR
+  if ! gh pr view $pr --repo $REPO > /dev/null 2>&1; then
+    echo "[skip] Not a PR #$pr: $CURRENT_TIME"
+    sleep 1s
+    continue
+  fi
+  echo "TODO: missing data for PR $pr"
+done
