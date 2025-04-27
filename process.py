@@ -90,7 +90,7 @@ def _compute_status_change_data(pr_data: dict, number: int, is_incomplete: bool)
         13089, # TODO: investigate more closely!
         6595, # TODO: investigate more closely!
         3200,
-        9526,
+        9526, 12032,
     ]
     if number in bad_prs:
         missing = {"status": "missing"}
