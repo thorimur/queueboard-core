@@ -82,7 +82,9 @@ for pr in $(cat "missing_prs.txt" | grep --invert-match "^--" | head --lines 50)
   download_pr $pr
 done
 # If there were less than two "missing" PRs to backfill, backfill PRs from `closed_prs_to_backfill.txt`.
-for pr in $(cat "closed_prs_to_backfill.txt" | grep --invert-match "^--" | head --lines 50); do
+# Order these randomly to ensure that any one PR which ought to be stubborn
+# does not clog the "backfilling queue".
+for pr in $(cat "closed_prs_to_backfill.txt" | grep --invert-match "^--" | head --lines 50 | shuf); do
   # Check if the directory exists
   if [ -d "data/$pr" ]; then
     echo "[skip] Data exists for #$pr: $CURRENT_TIME"
