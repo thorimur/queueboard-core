@@ -56,7 +56,7 @@
   {
     "github_handle": "YaelDillies",
     "zulip_handle": "@**Yaël Dillies**",
-    "top_level": ["t-combinatorics", "t-order-theory", "t-measure-probability", "t-analysis", "t-algebra"],
+    "top_level": ["t-combinatorics", "", "t-measure-probability", "t-analysis", "t-algebra"],
     "free_form": "I am competent for all of combinatorics, all of (algebraic) order theory, all of basic algebra (in particular pointwise actions), most of probability/measure theory, most of convex analysis. For non-mathematical subjects, I have strong opinions on naming and can give advice on type hierarchies and `positivity` extensions."
   },
   {
@@ -128,7 +128,7 @@
   {
     "github_handle": "bryangingechen",
     "zulip_handle": "@**Bryan Gin-ge Chen**",
-    "top_level": ["t-order-theory", "CI"],
+    "top_level": ["t-order", "CI"],
     "free_form": ""
   },
   {
@@ -146,7 +146,7 @@
   {
     "github_handle": "Vierkantor",
     "zulip_handle": "@**Anne Baanen**",
-    "top_level": ["t-algebra", "t-number-theory", "t-algorithms", "t-orders", "t-lattices"],
+    "top_level": ["t-algebra", "t-number-theory", "t-algorithms", "t-order", "t-lattices"],
     "free_form": "Typeclasses, hierarchies, optimization and refactoring, metaprogramming"
   },
   {
