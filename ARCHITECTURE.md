@@ -33,7 +33,9 @@ The `processed_data` directory contains results of data post-processing scripts.
 This post-processing includes merely extracting relevant information, but also some non-trivial analyses. For instance, for each PR, we try to determine the total time it was on the review queue and the last time its status changed (from e.g. awaiting author action to waiting on review).
 
 There are a few text files which hold state, about missing PRs or PRs which might need special handling.
-- `broken_pr_data.txt` is a transient file not committed to this repository: `download_missing_outdated_PRs.sh` write information about any PR with broken data to this file; `check_data_integrity.py` reads it
+- `broken_pr_data.txt` and `outdated_prs.txt` are a transient files not committed to this repository. Both are created by `download_missing_outdated_PRs.sh`.
+  `broken_pr_data.txt` contains information about PR with broken data and is read by `check_data_integrity.py` later;
+  `outdated_prs.txt` contains all PRs whose metadata is known to be outdated (so reviewer assignments can avoid these PRs for now)
 - `missing_prs.txt` lists open PRs for which data is entirely missing
 (This could happen, for example, if there is an error in the downloading workflow. In practice, this is rare.)
 It also contains comments if downloading a PR's data failed already: if downloading a PR's data failed for three times in a row,

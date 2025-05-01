@@ -65,8 +65,9 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git add data
         git add processed_data
-        # This file may not exist, if there was no broken download to begin with.
+        # These files may not exist, if there was no broken download to begin with resp. all metadata is up to date.
         rm -f broken_pr_data.txt
+        rm -f outdated_prs.txt
         git add *.txt
         git commit -m 'Update data; redownload missing and outdated data; regenerate aggregate files'
 

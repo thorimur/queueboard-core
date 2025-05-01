@@ -484,6 +484,10 @@ def main() -> None:
 
             random.shuffle(outdated_prs)
             file.write("\n".join([str(n) for n in outdated_prs[: min(5, len(outdated_prs))]]) + "\n")
+        # Write all outdated PRs to a file "outdated_prs.txt". That file is not committed,
+        # but is used to inform the reviewer suggestion algorithm.
+        with open("outdated_prs.txt", "w") as fi:
+            fi.write("\n".join([str(n) for n in outdated_prs]) + "\n")
     else:
         print("All PR aggregate data appears up to date, congratulations!")
 
