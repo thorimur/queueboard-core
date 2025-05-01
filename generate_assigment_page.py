@@ -66,22 +66,16 @@ def compute_pr_list_from_aggregate_data_only(aggregate_data: dict[int, Aggregate
 
 class AssignmentStatistics(NamedTuple):
     timestamp: datetime
-    # We ignore all PRs whose number lies below this threshold: so far, the aggregate file
-    # only contains information about a third of all PRs; we prefer to not issue statistics
-    # based on such incomplete data (which is gradually becoming more complete).
-    # This is part of the data to avoid "very silently" confusing different statistics.
-    threshold: int
-    # The number of all open PRs whose number is at >= |threshold|.
-    num_open_above: int
-    # All PRs >= threshold which are open and assigned to somebody.
-    # This list is deduplicated.
-    assigned_open_above: List[int]
-    # The number of PRs (>= |threshold|) with multiple assignees.
+    # The number of all open PRs
+    num_open: int
+    # All PRs which are open and assigned to somebody. This list has no duplicates
+    assigned_open: List[int]
+    # The number of PRs with multiple assignees.
     number_multiple_assignees: int
-    # Collating all assigned PRs above the threshold: map each user's github handle to a tuple
+    # Collating all assigned PRs: map each user's github handle to a tuple
     # (numbers, n_open, n_all), where
-    # - numbers is a list of *open* PRs (>= threshold) assigned to this user,
-    # - n_all is the number of all such PRs (>= threshold).
+    # - numbers is a list of *open* PRs assigned to this user,
+    # - n_all is the number of all PRs ever assignment to this user
     # Note that a PR assigned to several users is counted multiple times, once per assignee.
     assignments: dict[str, Tuple[List[int], int]]
 
@@ -90,20 +84,18 @@ def collect_assignment_statistics() -> AssignmentStatistics:
     with open(path.join("processed_data", "assignment_data.json"), "r") as fi:
         assignment_data = json.load(fi)
     time = parser.isoparse(assignment_data["timestamp"])
-    threshold = assignment_data["threshold"]
-    num_open_above_threshold = assignment_data["number_open_above_threshold"]
+    num_open = assignment_data["number_open_prs"]
     assignments = assignment_data["all_assignments"]
     numbers: dict[str, Tuple[List[int], int]] = {}
     assigned_open_prs = []
     for reviewer, data in assignments.items():
-        above_threshold = [entry for entry in data if entry["number"] >= threshold]
-        open_above_threshold = sorted([entry["number"] for entry in above_threshold if entry["state"] == "open"])
-        numbers[reviewer] = (open_above_threshold, len(above_threshold))
-        assigned_open_prs.extend(open_above_threshold)
+        open_assigned = sorted([entry["number"] for entry in data if entry["state"] == "open"])
+        numbers[reviewer] = (open_assigned, len(data))
+        assigned_open_prs.extend(open_assigned)
     num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
-    assert assignment_data["number_open_assigned_above_threshold"] == len(list(set(assigned_open_prs)))
+    assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
     return AssignmentStatistics(
-        time, threshold, num_open_above_threshold, sorted(list(set(assigned_open_prs))), num_multiple_assignees, numbers
+        time, num_open, sorted(list(set(assigned_open_prs))), num_multiple_assignees, numbers
     )
 
 # Copy-pasted from STANDARD_ALIAS_MAPPING, but the indices are different.
@@ -234,14 +226,16 @@ def main() -> None:
     update = f"<p><small>The data underlying this webpage was last updated on: {updated}</small></p>"
 
     header = _make_h2("assignment-stats", "PR assignment statistics")
-    intro = f"The following table contains statistics about all open PRs whose number is at least {stats.threshold}.<br>"
+    intro = f"The following table contains statistics about all open PRs.<br>"
     stat = (
-        f"Overall, <b>{len(stats.assigned_open_above)}</b> of these <b>{stats.num_open_above}</b> open PRs (<b>{len(stats.assigned_open_above)/stats.num_open_above:.1%}</b>) have at least one assignee. "
+        f"Overall, <b>{len(stats.assigned_open)}</b> of these <b>{stats.num_open}</b> open PRs (<b>{len(stats.assigned_open)/stats.num_open:.1%}</b>) have at least one assignee. "
         f"Among these, <strong>{stats.number_multiple_assignees}</strong> have more than one assignee."
+        f"We provide the number of all PRs ever assigned as a rough reference &emdash; but be very careful with interpreting it:"
+         "Some reviewers are active for longer than others, and the assignee field is used to <b>greatly varying</b> degree!"
     )
-    all_recent = f'<a title="number of all assigned PRs whose PR number is at least {stats.threshold}">Number of all recent PRs</a>'
+    all_recent = f'<a title="number of all assigned PRs">Number of PRs ever assigned</a>'
     # NB. Add an empty column to please the formatting script.
-    open_assigned = f'<a title="only considering PRs with number at least {stats.threshold}">Open assigned PR(s)</a>'
+    open_assigned = f'Open assigned PR(s)'
     thead = _write_table_header(["User", open_assigned, "Number of them", all_recent, ""], "    ")
     tbody = ""
     for name, (prs, n_all) in stats.assignments.items():
@@ -254,14 +248,14 @@ def main() -> None:
     intro = "The following lists all mathlib reviewers with their (self-declared) topics of interest. (Beware: still need a solution for keep this file in sync with the 'master' data.)"
 
     parsed_reviewers = read_reviewer_info()
-    curr = f"<a title='only considering PRs with number > {stats.threshold}'>Currently assigned PRs</a>"
+    curr = f"Currently assigned PRs"
     # NB. Add an empty column to please the formatting script.
     thead = _write_table_header(["Github username", "Zulip handle", "Topic areas", "Comments", curr, ""], "    ")
     tbody = ""
     for rev in parsed_reviewers:
         if rev.github in stats.assignments:
             (pr_numbers, n_all) = stats.assignments[rev.github]
-            desc = f'<a title="{n_all} PR(s) > {stats.threshold} ever assigned">{", ".join([str(n) for n in pr_numbers]) or "none"}</a>'
+            desc = f'<a title="{n_all} PR(s) ever assigned">{", ".join([str(n) for n in pr_numbers]) or "none"}</a>'
         else:
             desc = "none ever"
         tbody += _write_table_row([user_link(rev.github), rev.zulip, ", ".join(rev.top_level), rev.comment, desc, ""], "    ")
