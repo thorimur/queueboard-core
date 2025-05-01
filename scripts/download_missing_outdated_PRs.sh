@@ -124,20 +124,20 @@ for pr in $stubborn_prs; do
 done
 echo "Backfilled up to 2 'stubborn' PRs successfully"
 
-# One-off task: final check if there are any PRs missing from that list.
-for pr in $(seq 1 24550); do
-  # Check if the directory exists
-  if [ -d "data/$pr" ]; then
-    # echo "[skip] Data exists for #$pr: $CURRENT_TIME"
-    continue
-  elif [ -d "data/$pr-basic" ]; then
-    continue
-  fi
-  # Check if the number corresponds to a PR
-  if ! gh pr view $pr --repo $REPO > /dev/null 2>&1; then
-    echo "[skip] Not a PR #$pr: $CURRENT_TIME"
-    sleep 0.3s
-    continue
-  fi
-  echo "TODO: missing data for PR $pr"
-done
+# # One-off task: final check if there are any PRs missing from that list.
+# for pr in $(seq 1 24550); do
+#   # Check if the directory exists
+#   if [ -d "data/$pr" ]; then
+#     # echo "[skip] Data exists for #$pr: $CURRENT_TIME"
+#     continue
+#   elif [ -d "data/$pr-basic" ]; then
+#     continue
+#   fi
+#   # Check if the number corresponds to a PR
+#   if ! gh pr view $pr --repo $REPO > /dev/null 2>&1; then
+#     echo "[skip] Not a PR #$pr: $CURRENT_TIME"
+#     sleep 0.3s
+#     continue
+#   fi
+#   echo "TODO: missing data for PR $pr"
+# done
