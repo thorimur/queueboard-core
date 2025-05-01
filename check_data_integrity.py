@@ -336,7 +336,8 @@ def compare_data_aggressive() -> List[int]:
     for page in data1["output"]:
         for pr in page["data"]["search"]["nodes"]:
             parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
-            author = pr["author"]["login"]
+            # dependabot PRs don't have a login name in their REST API data; handle this gracefully.
+            author = pr["author"]["login"] if "login" in pr["author"] else "dependabot?"
             url = pr["author"]["url"]
             if url != f'https://github.com/{author}':
                 print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
@@ -346,7 +347,7 @@ def compare_data_aggressive() -> List[int]:
     for page in data2["output"]:
         for pr in page["data"]["search"]["nodes"]:
             parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
-            author = pr["author"]["login"]
+            author = pr["author"]["login"] if "login" in pr["author"] else "dependabot?"
             url = pr["author"]["url"]
             if url != f'https://github.com/{author}':
                 print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
@@ -361,8 +362,7 @@ def compare_data_aggressive() -> List[int]:
 # Read the last updated fields of the aggregate data file, and compare it with the
 # dates from querying github.
 def main() -> None:
-    # TODO: fix this step, by diagnosing why this fails!
-    outdated_aggressive = [] # compare_data_aggressive()
+    outdated_aggressive = compare_data_aggressive()
 
     (normal_prs_with_errors, stubborn_prs_with_errors) = check_data_directory_contents()
     lines = []
