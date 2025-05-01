@@ -9,6 +9,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from enum import Enum, auto, unique
 from os import path
+from random import shuffle
 from typing import Dict, List, NamedTuple, Tuple
 
 from dateutil import parser, relativedelta
@@ -1048,6 +1049,21 @@ def main() -> None:
     write_maintainers_quick_page(updated, prs_to_list, aggregate_info)
     write_help_out_page(updated, prs_to_list, aggregate_info)
     write_triage_page(updated, prs_to_list, all_pr_status, aggregate_info, nondraft_PRs, draft_PRs)
+
+    # As a final feature, we propose a reviewer for 10 (randomly drawn) stale unassigned pull requests,
+    # and write this information to "proposed_assignments.json".
+    # XXX: importing this at the beginning leads to a circular import; importing it here seems to work.
+    from suggest_reviewer import read_reviewer_info, collect_assignment_statistics, suggest_reviewers
+    reviewer_info = read_reviewer_info()
+    assignment_stats = collect_assignment_statistics()
+    all_stale_unassigned : List[int] = [pr.number for pr in prs_to_list[Dashboard.QueueStaleUnassigned]]
+    shuffle(all_stale_unassigned)
+    suggestions = {
+        n: suggest_reviewers(assignment_stats.assignments, reviewer_info, n, aggregate_info[n])[1]
+        for n in all_stale_unassigned[0:10]
+    }
+    with open("suggested_assignments.json", "w") as fi:
+        print(json.dumps(suggestions, indent=4), file=fi)
 
 
 if __name__ == "__main__":
