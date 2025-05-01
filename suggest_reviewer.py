@@ -10,6 +10,11 @@ import json
 import sys
 from typing import List, NamedTuple, Tuple
 
+from datetime import datetime
+from os import path
+
+from dateutil import parser
+
 from dashboard import (
     AggregatePRInfo,
     user_link,
@@ -35,6 +40,41 @@ def read_reviewer_info() -> List[ReviewerInfo]:
         ReviewerInfo(entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"])
         for entry in reviewer_topics
     ]
+
+
+class AssignmentStatistics(NamedTuple):
+    timestamp: datetime
+    # The number of all open PRs
+    num_open: int
+    # All PRs which are open and assigned to somebody. This list has no duplicates
+    assigned_open: List[int]
+    # The number of PRs with multiple assignees.
+    number_multiple_assignees: int
+    # Collating all assigned PRs: map each user's github handle to a tuple
+    # (numbers, n_open, n_all), where
+    # - numbers is a list of *open* PRs assigned to this user,
+    # - n_all is the number of all PRs ever assignment to this user
+    # Note that a PR assigned to several users is counted multiple times, once per assignee.
+    assignments: dict[str, Tuple[List[int], int]]
+
+
+def collect_assignment_statistics() -> AssignmentStatistics:
+    with open(path.join("processed_data", "assignment_data.json"), "r") as fi:
+        assignment_data = json.load(fi)
+    time = parser.isoparse(assignment_data["timestamp"])
+    num_open = assignment_data["number_open_prs"]
+    assignments = assignment_data["all_assignments"]
+    numbers: dict[str, Tuple[List[int], int]] = {}
+    assigned_open_prs = []
+    for reviewer, data in assignments.items():
+        open_assigned = sorted([entry["number"] for entry in data if entry["state"] == "open"])
+        numbers[reviewer] = (open_assigned, len(data))
+        assigned_open_prs.extend(open_assigned)
+    num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
+    assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
+    return AssignmentStatistics(
+        time, num_open, sorted(list(set(assigned_open_prs))), num_multiple_assignees, numbers
+    )
 
 
 # Suggest potential reviewers for a single pull request with given number.

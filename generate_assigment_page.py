@@ -9,11 +9,8 @@ Generate a webpage
 
 import json
 import sys
-from datetime import datetime
 from os import path
 from typing import List, NamedTuple, Tuple
-
-from dateutil import parser
 
 from ci_status import CIStatus
 from dashboard import (
@@ -39,6 +36,8 @@ from suggest_reviewer import (
   ReviewerInfo,
   read_reviewer_info,
   suggest_reviewers,
+  AssignmentStatistics,
+  collect_assignment_statistics,
 )
 
 # Assumes the aggregate data is correct: no cross-filling in of placeholder data.
@@ -63,40 +62,6 @@ def compute_pr_list_from_aggregate_data_only(aggregate_data: dict[int, Aggregate
     prs_from_fork = [pr for pr in nondraft_PRs if aggregate_data[pr.number].head_repo != "leanprover-community"]
     return determine_pr_dashboards(all_open_prs, nondraft_PRs, base_branch, prs_from_fork, CI_status, aggregate_data, True)
 
-
-class AssignmentStatistics(NamedTuple):
-    timestamp: datetime
-    # The number of all open PRs
-    num_open: int
-    # All PRs which are open and assigned to somebody. This list has no duplicates
-    assigned_open: List[int]
-    # The number of PRs with multiple assignees.
-    number_multiple_assignees: int
-    # Collating all assigned PRs: map each user's github handle to a tuple
-    # (numbers, n_open, n_all), where
-    # - numbers is a list of *open* PRs assigned to this user,
-    # - n_all is the number of all PRs ever assignment to this user
-    # Note that a PR assigned to several users is counted multiple times, once per assignee.
-    assignments: dict[str, Tuple[List[int], int]]
-
-
-def collect_assignment_statistics() -> AssignmentStatistics:
-    with open(path.join("processed_data", "assignment_data.json"), "r") as fi:
-        assignment_data = json.load(fi)
-    time = parser.isoparse(assignment_data["timestamp"])
-    num_open = assignment_data["number_open_prs"]
-    assignments = assignment_data["all_assignments"]
-    numbers: dict[str, Tuple[List[int], int]] = {}
-    assigned_open_prs = []
-    for reviewer, data in assignments.items():
-        open_assigned = sorted([entry["number"] for entry in data if entry["state"] == "open"])
-        numbers[reviewer] = (open_assigned, len(data))
-        assigned_open_prs.extend(open_assigned)
-    num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
-    assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
-    return AssignmentStatistics(
-        time, num_open, sorted(list(set(assigned_open_prs))), num_multiple_assignees, numbers
-    )
 
 # Copy-pasted from STANDARD_ALIAS_MAPPING, but the indices are different.
 # Adjust this script, if there is a logic change we want to mirrow/a major column being added.

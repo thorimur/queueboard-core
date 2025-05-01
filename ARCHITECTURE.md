@@ -83,6 +83,7 @@ The data in the json files conceptually duplicates the aggregate data downloaded
 `dashboard.py` is where the core logic of creating the dashboard lives. It is a Python script, taking the JSON files from the previous step and the processed PR information in `processed_data` as input. It writes the HTML code for the dashboard page, and various subpages, to hard-coded HTML files. The overall work is split across a few files.
 - `mathlib_dashboards.py` defines the various dashboards which are present on the generated HTML page
 - `compute_dashboard_prs.py` contains the logic for computing which PRs belong to each dashboard in `mathlib_dashboards.py`
+- `suggest_reviewer.py` contains logic for suggesting a reviewer for a given PR
 
 **Architecture invariant.** The output of `dashboard.py` only depends on its command line arguments, the contents of the `processed_data` directory and its current time: with both fixed, it is deterministic. In particular, it makes no network requests. All reading of input files is constrained to one method `read_json_files` in the beginning.
 
