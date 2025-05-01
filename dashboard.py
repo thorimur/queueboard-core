@@ -1060,7 +1060,7 @@ def main() -> None:
     shuffle(all_stale_unassigned)
     suggestions = {
         n: suggest_reviewers(assignment_stats.assignments, reviewer_info, n, aggregate_info[n])[1]
-        for n in all_stale_unassigned[0:10]
+        for n in sorted(all_stale_unassigned[0:10])
     }
     with open("suggested_assignments.json", "w") as fi:
         print(json.dumps(suggestions, indent=4), file=fi)
