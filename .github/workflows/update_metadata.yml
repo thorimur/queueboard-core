@@ -69,7 +69,6 @@ jobs:
         rm -f broken_pr_data.txt
         rm -f outdated_prs.txt
         git add *.txt
-        git add suggested_assignments.json
         git commit -m 'Update data; redownload missing and outdated data; regenerate aggregate files'
 
     - name: Push changes
@@ -106,6 +105,7 @@ jobs:
         mv tmp4.html maintainers_quick.html
         mv tmp5.html help_out.html
         mv tmp6.html triage.html
+        git add suggested_assignments.json
         git add index.html
         git add on_the_queue.html
         git add review_dashboard.html
