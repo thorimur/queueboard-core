@@ -84,7 +84,6 @@ jobs:
         python3 ./dashboard.py "all-open-PRs-1.json" "all-open-PRs-2.json"
         rm all-open-PRs-1.json
         rm all-open-PRs-2.json
-        ls *.json
 
     - name: Commit and push changes
       if: ${{ !cancelled() }} && (steps.download-json.outcome == 'success')
@@ -109,7 +108,7 @@ jobs:
         mv tmp4.html maintainers_quick.html
         mv tmp5.html help_out.html
         mv tmp6.html triage.html
-        # git add suggested_assignments.json
+        git add suggested_assignments.json
         git add index.html
         git add on_the_queue.html
         git add review_dashboard.html
