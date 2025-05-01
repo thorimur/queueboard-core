@@ -125,10 +125,12 @@ done
 echo "Backfilled up to 2 'stubborn' PRs successfully"
 
 # One-off task: final check if there are any PRs missing from that list.
-for pr in $(seq 1 25000); do
+for pr in $(seq 1 24550); do
   # Check if the directory exists
   if [ -d "data/$pr" ]; then
     # echo "[skip] Data exists for #$pr: $CURRENT_TIME"
+    continue
+  elif [ -d "data/$pr-basic" ]; then
     continue
   fi
   # Check if the number corresponds to a PR
