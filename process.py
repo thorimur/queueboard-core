@@ -35,6 +35,7 @@ def determine_ci_status(number, CI_check_nodes: dict) -> str:
         "Add delegated label",
         "Add topic label",
         "apply_one_t_label",
+        "Add closed-pr emoji in Zulip",
         "Add ready-to-merge label",
         "Add ready-to-merge or delegated label",
         "Ping maintainers on Zulip",
