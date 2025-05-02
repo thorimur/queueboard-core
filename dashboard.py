@@ -1053,7 +1053,7 @@ def main() -> None:
     # As a final feature, we propose a reviewer for 10 (randomly drawn) stale unassigned pull requests,
     # and write this information to "proposed_assignments.json".
     # XXX: importing this at the beginning leads to a circular import; importing it here seems to work.
-    from suggest_reviewer import read_reviewer_info, collect_assignment_statistics, suggest_reviewers
+    from suggest_reviewer import read_reviewer_info, collect_assignment_statistics, suggest_reviewers_many
     reviewer_info = read_reviewer_info()
     assignment_stats = collect_assignment_statistics()
     all_stale_unassigned : List[int] = [pr.number for pr in prs_to_list[Dashboard.QueueStaleUnassigned]]
@@ -1065,10 +1065,7 @@ def main() -> None:
         lines = []
     outdated_prs = [int(s) for s in lines if s]
     to_analyze = [pr for pr in all_stale_unassigned if pr not in outdated_prs]
-    suggestions = {
-        n: suggest_reviewers(assignment_stats.assignments, reviewer_info, n, aggregate_info[n])[1]
-        for n in sorted(to_analyze[0:10])
-    }
+    suggestions = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:10]), aggregate_info)
     with open("suggested_assignments.json", "w") as fi:
         print(json.dumps(suggestions, indent=4), file=fi)
 

@@ -139,3 +139,15 @@ def suggest_reviewers(
         ])
         suggested_reviewers = [rev.github for (rev, _areas, _n) in with_curr_assignments]
         return (formatted, suggested_reviewers)
+
+# Suggest reviewers for a list of PRs: these are traversed in order, and for each PR a list
+# of possible reviewers is created. This takes a maximum review capacity into account.
+# Return a dictionary (pr_number: proposed reviewers).
+def suggest_reviewers_many(
+    existing_assignments: dict[str, Tuple[List[int], int]], reviewers: List[ReviewerInfo], prs_to_assign: List[int], info: dict[int, AggregatePRInfo]
+) -> dict[int, List[str]]:
+    suggestions = {}
+    for number in prs_to_assign:
+        # TODO: filter these by a maximum review capacity, perhaps hard-coded to 10 PRs?
+        suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number])[1]
+    return suggestions
