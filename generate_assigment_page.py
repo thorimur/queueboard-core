@@ -234,8 +234,8 @@ def main() -> None:
     table = write_dashboard("assign-reviewer.html", pr_lists, Dashboard.QueueStaleUnassigned, parsed, settings, False, suggestions, "propose-reviewers")
     propose_stale = f"{header}\n{table}\n"
     # NB. This line becomes actual javascript code, so uses JS' string interpolation syntax.
-    msg = "Dear ${name}, I'm triaging unassigned PRs. #${number} matches your interests; would you like to review it? Thanks!"
-    extra = "  function contactMessage(name, number) {\n    alert(`msg`);\n  }".replace("msg", msg)
+    # msg = "Dear ${name}, I'm triaging unassigned PRs. #${number} matches your interests; would you like to review it? Thanks!"
+    # extra = "  function contactMessage(name, number) {\n    alert(`msg`);\n  }".replace("msg", msg)
 
     header = _make_h2("propose-reviewers-all", "Finding reviewers for all unassigned PRs")
     table = write_dashboard("assign-reviewer.html", pr_lists, Dashboard.Queue, parsed, settings, False, suggestions, "propose-reviewers-all")

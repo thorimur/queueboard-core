@@ -214,8 +214,8 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
             number_review_comments += len(t["comments"]["nodes"])
         aggregate_data["number_review_comments"] = number_review_comments
         num_events = len(inner["timelineItems"]["nodes"])
-        events_not_commit = [n for n in inner["timelineItems"]["nodes"]
-            if "__typename" not in n or n["__typename"] != "PullRequestCommit"]
+        # events_not_commit = [n for n in inner["timelineItems"]["nodes"]
+        #    if "__typename" not in n or n["__typename"] != "PullRequestCommit"]
 
         # All these PRs have (sometimes far) more than commits or 250 events, so re-downloading their
         # data now would not help: do not print information about them.
