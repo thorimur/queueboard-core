@@ -31,11 +31,13 @@ def determine_ci_status(number, CI_check_nodes: dict) -> str:
         "label-new-contributor",
         "label-and-report-new-contributor",
         "New Contributor Check",
-        "Add delegated label",
         "Add topic label",
+        "update-label",
         "apply_one_t_label",
         "Add closed-pr emoji in Zulip",
+        "set_pr_emoji",
         "Add ready-to-merge label",
+        "Add delegated label",
         "Add ready-to-merge or delegated label",
         "Ping maintainers on Zulip",
         # This was an old name for the "Post or update summary comment" job, which has since been given a name.
@@ -43,6 +45,7 @@ def determine_ci_status(number, CI_check_nodes: dict) -> str:
         "post-or-update-summary-comment",
         "build",
         "Cross off linked issues",
+        "Post summary of benchmarking results",
     ]
     # We consider CI to be passing if no job fails, and every job succeeds or is skipped.
     # If no job fails, but some are still running, we return "running".
