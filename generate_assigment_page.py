@@ -186,16 +186,16 @@ def main() -> None:
     update = f"<p><small>The data underlying this webpage was last updated on: {updated}</small></p>"
 
     header = _make_h2("assignment-stats", "PR assignment statistics")
-    intro = f"The following table contains statistics about all open PRs.<br>"
+    intro = "The following table contains statistics about all open PRs.<br>"
     stat = (
         f"Overall, <b>{len(stats.assigned_open)}</b> of these <b>{stats.num_open}</b> open PRs (<b>{len(stats.assigned_open)/stats.num_open:.1%}</b>) have at least one assignee. "
         f"Among these, <strong>{stats.number_multiple_assignees}</strong> have more than one assignee."
         f"We provide the number of all PRs ever assigned as a rough reference &emdash; but be very careful with interpreting it:"
          "Some reviewers are active for longer than others, and the assignee field is used to <b>greatly varying</b> degree!"
     )
-    all_recent = f'<a title="number of all assigned PRs">Number of PRs ever assigned</a>'
+    all_recent = '<a title="number of all assigned PRs">Number of PRs ever assigned</a>'
     # NB. Add an empty column to please the formatting script.
-    open_assigned = f'Open assigned PR(s)'
+    open_assigned = 'Open assigned PR(s)'
     thead = _write_table_header(["User", open_assigned, "Number of them", all_recent, ""], "    ")
     tbody = ""
     for name, (prs, n_all) in stats.assignments.items():
@@ -208,7 +208,7 @@ def main() -> None:
     intro = "The following lists all mathlib reviewers with their (self-declared) topics of interest. (Beware: still need a solution for keep this file in sync with the 'master' data.)"
 
     parsed_reviewers = read_reviewer_info()
-    curr = f"Currently assigned PRs"
+    curr = "Currently assigned PRs"
     # NB. Add an empty column to please the formatting script.
     thead = _write_table_header(["Github username", "Zulip handle", "Topic areas", "Comments", curr, ""], "    ")
     tbody = ""
