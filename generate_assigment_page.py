@@ -8,9 +8,8 @@ Generate a webpage
 """
 
 import json
-import sys
 from os import path
-from typing import List, NamedTuple, Tuple
+from typing import List
 
 from ci_status import CIStatus
 from dashboard import (
@@ -28,15 +27,11 @@ from dashboard import (
     user_link,
     write_dashboard,
     write_webpage,
-    STANDARD_ALIAS_MAPPING,
-    STANDARD_SCRIPT,
 )
 
 from suggest_reviewer import (
-  ReviewerInfo,
   read_reviewer_info,
   suggest_reviewers,
-  AssignmentStatistics,
   collect_assignment_statistics,
 )
 

@@ -7,19 +7,18 @@
 import json
 import sys
 from datetime import datetime, timedelta, timezone
-from enum import Enum, auto, unique
 from os import path
 from random import shuffle
-from typing import Dict, List, NamedTuple, Tuple
+from typing import List, NamedTuple, Tuple
 
-from dateutil import parser, relativedelta
+from dateutil import parser, relativedelta, tz
 
 from ci_status import CIStatus
-from classify_pr_state import PRState, PRStatus
-from compute_dashboard_prs import (AggregatePRInfo, BasicPRInformation, Label, DataStatus, LastStatusChange, TotalQueueTime,
+from classify_pr_state import PRStatus
+from compute_dashboard_prs import (AggregatePRInfo, BasicPRInformation, Label, DataStatus,
     PLACEHOLDER_AGGREGATE_INFO, compute_pr_statusses, determine_pr_dashboards, infer_pr_url, link_to, parse_aggregate_file, gather_pr_statistics, _extract_prs)
 from mathlib_dashboards import Dashboard, short_description, long_description, getIdTitle, getTableId
-from util import my_assert_eq, format_delta, timedelta_tryParse, relativedelta_tryParse
+from util import format_delta
 
 
 ### Reading the input files passed to this script ###
@@ -143,8 +142,6 @@ def label_link(label: Label, page: str, id: str) -> str:
 # Auxiliary function, used for sorting the "total time in review".
 def format_delta2(delta: timedelta) -> str:
     return f"{delta.days}-{delta.seconds}"
-
-from dateutil import tz
 
 assert parser.isoparse("2024-04-29T18:53:51Z") == datetime(2024, 4, 29, 18, 53, 51, tzinfo=tz.tzutc())
 

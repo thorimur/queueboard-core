@@ -12,13 +12,12 @@ we list
 import json
 import sys
 from datetime import datetime, timezone
-from datetime import datetime, timedelta, timezone
 from os import listdir, path
 from typing import List, Tuple
 
 from classify_pr_state import PRStatus
 from state_evolution import first_time_on_queue, last_status_update, total_queue_time
-from util import eprint, parse_json_file, relativedelta_tryParse, timedelta_tryParse, timedelta_tostr
+from util import eprint, parse_json_file, relativedelta_tryParse, timedelta_tostr
 
 
 # Determine a PR's CI status: the return value is one of "pass", "fail", "fail-inessential" and "running".
