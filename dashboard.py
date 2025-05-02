@@ -1058,9 +1058,16 @@ def main() -> None:
     assignment_stats = collect_assignment_statistics()
     all_stale_unassigned : List[int] = [pr.number for pr in prs_to_list[Dashboard.QueueStaleUnassigned]]
     shuffle(all_stale_unassigned)
+    try:
+        with open("outdated_prs.txt", "r") as fi:
+            lines = fi.readlines()
+    except FileNotFoundError:
+        lines = []
+    outdated_prs = [int(s) for s in lines if s]
+    to_analyze = [pr for pr in all_stale_unassigned if pr not in outdated_prs]
     suggestions = {
         n: suggest_reviewers(assignment_stats.assignments, reviewer_info, n, aggregate_info[n])[1]
-        for n in sorted(all_stale_unassigned[0:10])
+        for n in sorted(to_analyze[0:10])
     }
     with open("suggested_assignments.json", "w") as fi:
         print(json.dumps(suggestions, indent=4), file=fi)
