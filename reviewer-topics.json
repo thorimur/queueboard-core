@@ -56,14 +56,14 @@
   {
     "github_handle": "YaelDillies",
     "zulip_handle": "@**Yaël Dillies**",
-    "top_level": ["t-combinatorics", "", "t-measure-probability", "t-analysis", "t-algebra"],
+    "top_level": ["t-combinatorics", "t-order", "t-measure-probability", "t-analysis", "t-algebra", "t-computability"],
     "free_form": "I am competent for all of combinatorics, all of (algebraic) order theory, all of basic algebra (in particular pointwise actions), most of probability/measure theory, most of convex analysis. For non-mathematical subjects, I have strong opinions on naming and can give advice on type hierarchies and `positivity` extensions."
   },
   {
     "github_handle": "grunweg",
     "zulip_handle": "@**Michael Rothgang**",
-    "top_level": ["t-differential-geometry", "t-analysis", "t-topology", "t-linters"],
-    "free_form": "technical debt"
+    "top_level": ["t-differential-geometry", "t-analysis", "t-topology", "t-linters", "tech debt"],
+    "free_form": ""
   },
   {
     "github_handle": "RemyDegenne",
@@ -134,7 +134,7 @@
   {
     "github_handle": "jcommelin",
     "zulip_handle": "@**Johan Commelin**",
-    "top_level": ["t-algebra", "t-number-theory", "t-algebraic-geometry", "t-category-theory", "t-topology"],
+    "top_level": ["t-algebra", "t-number-theory", "t-algebraic-geometry", "t-category-theory", "t-topology", "tech debt"],
     "free_form": "hierarchies, generic maintenance"
   },
   {
@@ -146,7 +146,7 @@
   {
     "github_handle": "Vierkantor",
     "zulip_handle": "@**Anne Baanen**",
-    "top_level": ["t-algebra", "t-number-theory", "t-algorithms", "t-order", "t-lattices"],
+    "top_level": ["t-algebra", "t-number-theory", "t-algorithms", "t-order", "t-lattices", "tech debt"],
     "free_form": "Typeclasses, hierarchies, optimization and refactoring, metaprogramming"
   },
   {
@@ -164,8 +164,8 @@
   {
     "github_handle": "mattrobball",
     "zulip_handle": "@**Matthew Ballard**",
-    "top_level": ["t-category-theory", "t-commutative-algebra", "t-noncommutative-algebra", "t-algebraic-geometry", "t-stability", "t-group-actions", "t-mirror-symmetry"],
-    "free_form": "Folders in mathlib: Algebra, AlgebraicGeometry, AlgebraicTopology, CategoryTheory, Data, FieldTheory, Geometry, GroupTheory, Init :), Lean, LinearAlgebra, NumberTheory, RepresentationTheory, RingTheory, Tactic, Topology, Util"
+    "top_level": ["t-category-theory", "t-algebra", "t-algebraic-geometry", "t-commutative-algebra", "t-noncommutative-algebra", "t-stability", "t-group-actions", "t-mirror-symmetry"],
+    "free_form": "Folders in mathlib: Algebra, AlgebraicGeometry, AlgebraicTopology, CategoryTheory, Data, FieldTheory, Geometry, GroupTheory, Lean, LinearAlgebra, NumberTheory, RepresentationTheory, RingTheory, Tactic, Topology, Util"
   },
   {
     "github_handle": "faenuccio",
