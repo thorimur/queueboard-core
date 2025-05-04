@@ -56,8 +56,14 @@
   {
     "github_handle": "YaelDillies",
     "zulip_handle": "@**Yaël Dillies**",
-    "top_level": ["t-combinatorics", "t-order", "t-measure-probability", "t-analysis", "t-algebra", "t-computability"],
+    "top_level": ["t-combinatorics", "t-order", "t-measure-probability", "t-analysis", "t-algebra", "t-computability", "t-set-theory"],
     "free_form": "I am competent for all of combinatorics, all of (algebraic) order theory, all of basic algebra (in particular pointwise actions), most of probability/measure theory, most of convex analysis. For non-mathematical subjects, I have strong opinions on naming and can give advice on type hierarchies and `positivity` extensions."
+  },
+  {
+    "github_handle": "b-mehta",
+    "zulip_handle": "@**Bhavik Mehta**",
+    "top_level": "t-category-theory, t-combinatorics, t-set-theory",
+    "free_form": ""
   },
   {
     "github_handle": "grunweg",
