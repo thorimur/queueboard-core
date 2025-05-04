@@ -62,7 +62,7 @@
   {
     "github_handle": "b-mehta",
     "zulip_handle": "@**Bhavik Mehta**",
-    "top_level": "t-category-theory, t-combinatorics, t-set-theory",
+    "top_level": ["t-category-theory", "t-combinatorics", "t-set-theory"],
     "free_form": ""
   },
   {
