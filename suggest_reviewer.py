@@ -9,6 +9,8 @@ This may take the current number of pull requests assigned to each reviewer into
 import json
 import sys
 from typing import List, NamedTuple, Tuple
+from classify_pr_state import PRState, PRStatus, LabelKind, determine_PR_status, label_categorisation_rules
+from compute_dashboard_prs import LastStatusChange, DataStatus
 
 from datetime import datetime
 from os import path
@@ -58,23 +60,69 @@ class AssignmentStatistics(NamedTuple):
     #   and blocked PRs do not get counted at all,
     # - n_all is the number of all PRs ever assigned to this user
     # Note that a PR assigned to several users is counted multiple times, once per assignee.
-    assignments: dict[str, Tuple[List[int], int, int]]
+    assignments: dict[str, Tuple[List[int], float, int]]
 
 
-def _compute_assignment_weight(prs : List[int]) -> int:
-    return len(prs)  # TODO!
+# Compute the weight of a pull request for the purposes of counting reviewer assignments.
+# A pull request has weight 1 if it is on the review queue or just has a merge conflict,
+# if it is waiting on the PR author or zulip, it has weight 1/(t+t)
+# (where t is the number of days since the PR was last on the queue),
+# blocked PRs get weight 0.
+def _compute_weight(pr: int, data: AggregatePRInfo) -> float:
+    # We don't use data.last_status_change as that is None for stubborn PRs
+    # (whereas we still classify them using labels and CI data).
+    labels: List[LabelKind] = [label_categorisation_rules[lab.name] for lab in data.labels if lab.name in label_categorisation_rules]
+    state = PRState(labels, data.CI_status, data.is_draft, data.head_repo == 'leanprover-community')
+    status: PRStatus = determine_PR_status(datetime(2025, 1, 1), state)
+    match status:
+        case PRStatus.AwaitingReview | PRStatus.MergeConflict:
+            return 1.0
+        case PRStatus.Blocked:
+            return 0
+        case PRStatus.AwaitingAuthor | PRStatus.AwaitingDecision:
+            match data.last_status_change:
+                case None:
+                    print(f"info: PR {pr} has no last status update, assigning weight 0.1 as placeholder")
+                    return 0.1
+                case LastStatusChange(DataStatus.Missing, _, _, _) | LastStatusChange(DataStatus.Incomplete, _, _, _):
+                    print(f"info: PR {pr} has incomplete or missing last update status information, assigning 0.1")
+                    return 0.1
+                case LastStatusChange(DataStatus.Valid, _, delta, current):
+                    assert current in [PRStatus.AwaitingAuthor, PRStatus.AwaitingDecision]
+                    # Future: do I want to refine this weight function?
+                    return 1 / (delta.days + 1)
+        case PRStatus.Delegated | PRStatus.AwaitingBors:
+            return 0
+        case PRStatus.Closed | PRStatus.Contradictory | PRStatus.NotReady | PRStatus.FromFork:
+            return 0
+        case PRStatus.HelpWanted:
+            return 0  # arguably also fine
+        case _:
+            # The above list should be complete!
+            assert False
+    return 0  # unreachable in practice
 
-def collect_assignment_statistics() -> AssignmentStatistics:
+
+# Compute a weighted sum of all PRs with number in |prs|.
+# A pull request has weight 1 if it is on the review queue or just has a merge conflict,
+# if it is waiting on the PR author or zulip, it has weight 1/(t+t)
+# (where t is the number of days since the PR was last on the queue),
+# blocked PRs get weight 0.
+def _compute_assignment_weight(prs : List[int], all_aggregate_info: dict[int, AggregatePRInfo]) -> float:
+    return sum([_compute_weight(pr, all_aggregate_info[pr]) for pr in prs])
+
+
+def collect_assignment_statistics(all_aggregate_info: dict[int, AggregatePRInfo]) -> AssignmentStatistics:
     with open(path.join("processed_data", "assignment_data.json"), "r") as fi:
         assignment_data = json.load(fi)
     time = parser.isoparse(assignment_data["timestamp"])
     num_open = assignment_data["number_open_prs"]
     assignments = assignment_data["all_assignments"]
-    numbers: dict[str, Tuple[List[int], int, int]] = {}
+    numbers: dict[str, Tuple[List[int], float, int]] = {}
     assigned_open_prs = []
     for reviewer, data in assignments.items():
         open_assigned = sorted([entry["number"] for entry in data if entry["state"] == "open"])
-        numbers[reviewer] = (open_assigned, _compute_assignment_weight(open_assigned), len(data))
+        numbers[reviewer] = (open_assigned, _compute_assignment_weight(open_assigned, all_aggregate_info), len(data))
         assigned_open_prs.extend(open_assigned)
     num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
     assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
@@ -89,7 +137,8 @@ def collect_assignment_statistics() -> AssignmentStatistics:
 # the second one contains all potential reviewers suggested (by their github handle).
 # The returned suggestions are ranked; less busy reviewers come first.
 def suggest_reviewers(
-    existing_assignments: dict[str, Tuple[List[int], int, int]], reviewers: List[ReviewerInfo], number: int, info: AggregatePRInfo
+    existing_assignments: dict[str, Tuple[List[int], float, int]], reviewers: List[ReviewerInfo], number: int, info: AggregatePRInfo,
+    all_info: dict[int, AggregatePRInfo]  # aggregate information about all PRs
 ) -> Tuple[str, List[str]]:
     # Look at all topic labels of this PR, and find all suitable reviewers.
     topic_labels = [lab.name for lab in info.labels if lab.name.startswith("t-") or lab.name in ["CI", "IMO"]]
@@ -151,10 +200,10 @@ def suggest_reviewers(
 # of possible reviewers is created. This takes a maximum review capacity into account.
 # Return a dictionary (pr_number: proposed reviewers).
 def suggest_reviewers_many(
-    existing_assignments: dict[str, Tuple[List[int], int, int]], reviewers: List[ReviewerInfo], prs_to_assign: List[int], info: dict[int, AggregatePRInfo]
+    existing_assignments: dict[str, Tuple[List[int], float, int]], reviewers: List[ReviewerInfo], prs_to_assign: List[int], info: dict[int, AggregatePRInfo]
 ) -> dict[int, List[str]]:
     suggestions = {}
     for number in prs_to_assign:
         # TODO: filter these by a maximum review capacity, perhaps hard-coded to 10 PRs?
-        suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number])[1]
+        suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number], info)[1]
     return suggestions

@@ -1052,7 +1052,7 @@ def main() -> None:
     # XXX: importing this at the beginning leads to a circular import; importing it here seems to work.
     from suggest_reviewer import read_reviewer_info, collect_assignment_statistics, suggest_reviewers_many
     reviewer_info = read_reviewer_info()
-    assignment_stats = collect_assignment_statistics()
+    assignment_stats = collect_assignment_statistics(aggregate_info)
     all_stale_unassigned : List[int] = [pr.number for pr in prs_to_list[Dashboard.QueueStaleUnassigned]]
     shuffle(all_stale_unassigned)
     try:

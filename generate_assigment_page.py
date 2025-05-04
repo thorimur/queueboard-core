@@ -176,9 +176,9 @@ $(document).ready( function () {
 
 
 def main() -> None:
-    stats = collect_assignment_statistics()
     with open(path.join("processed_data", "all_pr_data.json"), "r") as fi:
         parsed = parse_aggregate_file(json.load(fi))
+    stats = collect_assignment_statistics(parsed)
 
     title = "  <h1>PR assigment overview</h1>"
     welcome = "<p>This is a hidden page, meant for maintainers: it displays information on which PRs are assigned and suggests appropriate reviewers for unassigned PRs. In the future, it could provide the means to contact them. To prevent spam, for now this page is a bit hidden: it has to be generated locally from a script.</p>"
@@ -225,7 +225,7 @@ def main() -> None:
     header = _make_h2("propose-reviewers", "Finding reviewers for stale unassigned PRs")
     pr_lists = compute_pr_list_from_aggregate_data_only(parsed)
     suggestions = {
-        pr.number: suggest_reviewers(stats.assignments, parsed_reviewers, pr.number, parsed[pr.number])
+        pr.number: suggest_reviewers(stats.assignments, parsed_reviewers, pr.number, parsed[pr.number], parsed)
         for pr in pr_lists[Dashboard.Queue]
     }
     # Future: have another column with a button to send a zulip DM to a
