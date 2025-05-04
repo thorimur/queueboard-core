@@ -189,9 +189,9 @@ def main() -> None:
     intro = "The following table contains statistics about all open PRs.<br>"
     stat = (
         f"Overall, <b>{len(stats.assigned_open)}</b> of these <b>{stats.num_open}</b> open PRs (<b>{len(stats.assigned_open)/stats.num_open:.1%}</b>) have at least one assignee. "
-        f"Among these, <strong>{stats.number_multiple_assignees}</strong> have more than one assignee."
-        f"We provide the number of all PRs ever assigned as a rough reference &emdash; but be very careful with interpreting it:"
-         "Some reviewers are active for longer than others, and the assignee field is used to <b>greatly varying</b> degree!"
+        f"Among these, <strong>{stats.number_multiple_assignees}</strong> have more than one assignee. "
+        f"We provide the number of all PRs ever assigned as a rough reference—but be very careful with interpreting it: "
+         "some reviewers are active for longer than others, and the assignee field is used to <b>greatly varying</b> degree!"
     )
     all_recent = '<a title="number of all assigned PRs">Number of PRs ever assigned</a>'
     # NB. Add an empty column to please the formatting script.
