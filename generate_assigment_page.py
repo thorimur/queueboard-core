@@ -198,7 +198,7 @@ def main() -> None:
     open_assigned = 'Open assigned PR(s)'
     thead = _write_table_header(["User", open_assigned, "Number of them", all_recent, ""], "    ")
     tbody = ""
-    for name, (prs, n_all) in stats.assignments.items():
+    for name, (prs, n_weighted, n_all) in stats.assignments.items():
         formatted_prs = [pr_link(int(pr), infer_pr_url(pr), parsed[pr].title) for pr in prs]
         tbody += _write_table_row([user_link(name), ", ".join(formatted_prs), str(len(prs)), str(n_all), ""], "    ")
     table = f"  <table>\n{thead}{tbody}  </table>"
@@ -214,7 +214,7 @@ def main() -> None:
     tbody = ""
     for rev in parsed_reviewers:
         if rev.github in stats.assignments:
-            (pr_numbers, n_all) = stats.assignments[rev.github]
+            (pr_numbers, n_weighted, n_all) = stats.assignments[rev.github]
             desc = f'<a title="{n_all} PR(s) ever assigned">{", ".join([str(n) for n in pr_numbers]) or "none"}</a>'
         else:
             desc = "none ever"

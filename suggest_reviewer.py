@@ -51,12 +51,18 @@ class AssignmentStatistics(NamedTuple):
     # The number of PRs with multiple assignees.
     number_multiple_assignees: int
     # Collating all assigned PRs: map each user's github handle to a tuple
-    # (numbers, n_open, n_all), where
-    # - numbers is a list of *open* PRs assigned to this user,
-    # - n_all is the number of all PRs ever assignment to this user
+    # (numbers, n_open, n_open_weighted, n_all), where
+    # - numbers is a list of *open* PRs assigned to this user, n_open the number of these,
+    # - n_open_weighted counts these PRs with some *weight* applied: PRs on the queue or with just
+    #   a merge conflict get full weight, PRs waiting on the author (or zulip) get weight ...
+    #   and blocked PRs do not get counted at all,
+    # - n_all is the number of all PRs ever assigned to this user
     # Note that a PR assigned to several users is counted multiple times, once per assignee.
-    assignments: dict[str, Tuple[List[int], int]]
+    assignments: dict[str, Tuple[List[int], int, int]]
 
+
+def _compute_assignment_weight(prs : List[int]) -> int:
+    return len(prs)  # TODO!
 
 def collect_assignment_statistics() -> AssignmentStatistics:
     with open(path.join("processed_data", "assignment_data.json"), "r") as fi:
@@ -64,11 +70,11 @@ def collect_assignment_statistics() -> AssignmentStatistics:
     time = parser.isoparse(assignment_data["timestamp"])
     num_open = assignment_data["number_open_prs"]
     assignments = assignment_data["all_assignments"]
-    numbers: dict[str, Tuple[List[int], int]] = {}
+    numbers: dict[str, Tuple[List[int], int, int]] = {}
     assigned_open_prs = []
     for reviewer, data in assignments.items():
         open_assigned = sorted([entry["number"] for entry in data if entry["state"] == "open"])
-        numbers[reviewer] = (open_assigned, len(data))
+        numbers[reviewer] = (open_assigned, _compute_assignment_weight(open_assigned), len(data))
         assigned_open_prs.extend(open_assigned)
     num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
     assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
@@ -83,7 +89,7 @@ def collect_assignment_statistics() -> AssignmentStatistics:
 # the second one contains all potential reviewers suggested (by their github handle).
 # The returned suggestions are ranked; less busy reviewers come first.
 def suggest_reviewers(
-    existing_assignments: dict[str, Tuple[List[int], int]], reviewers: List[ReviewerInfo], number: int, info: AggregatePRInfo
+    existing_assignments: dict[str, Tuple[List[int], int, int]], reviewers: List[ReviewerInfo], number: int, info: AggregatePRInfo
 ) -> Tuple[str, List[str]]:
     # Look at all topic labels of this PR, and find all suitable reviewers.
     topic_labels = [lab.name for lab in info.labels if lab.name.startswith("t-") or lab.name in ["CI", "IMO"]]
@@ -127,7 +133,7 @@ def suggest_reviewers(
         # Sort these reviewers according to how busy they are, by their current number of assignments.
         # (Not every reviewer has had an assignment so far, so we need to use a fall-back value.)
         with_curr_assignments = [
-            (rev, areas, len(existing_assignments[rev.github][0]) if rev.github in existing_assignments else 0)
+            (rev, areas, existing_assignments[rev.github][1] if rev.github in existing_assignments else 0)
                 for (rev, areas) in proposed_reviewers
         ]
         with_curr_assignments = sorted(with_curr_assignments, key=lambda s: s[2])
@@ -140,11 +146,12 @@ def suggest_reviewers(
         suggested_reviewers = [rev.github for (rev, _areas, _n) in with_curr_assignments]
         return (formatted, suggested_reviewers)
 
+
 # Suggest reviewers for a list of PRs: these are traversed in order, and for each PR a list
 # of possible reviewers is created. This takes a maximum review capacity into account.
 # Return a dictionary (pr_number: proposed reviewers).
 def suggest_reviewers_many(
-    existing_assignments: dict[str, Tuple[List[int], int]], reviewers: List[ReviewerInfo], prs_to_assign: List[int], info: dict[int, AggregatePRInfo]
+    existing_assignments: dict[str, Tuple[List[int], int, int]], reviewers: List[ReviewerInfo], prs_to_assign: List[int], info: dict[int, AggregatePRInfo]
 ) -> dict[int, List[str]]:
     suggestions = {}
     for number in prs_to_assign:
