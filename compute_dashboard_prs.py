@@ -374,7 +374,7 @@ def gather_pr_statistics(
         # TODO: compare these lists of PRs in detail, to verify if this exposes anything other than outdated data!
         # assert False
 
-    return (number_all, f"<ul>\n{details}\n</ul>", '<div class="piechart" style="{piechart_style}"></div>')
+    return (number_all, f"<ul>\n{details}\n</ul>", f'<div class="piechart" style="{piechart_style}"></div>')
 
 
 def has_contradictory_labels(pr: BasicPRInformation) -> bool:
