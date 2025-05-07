@@ -131,15 +131,21 @@ def collect_assignment_statistics(all_aggregate_info: dict[int, AggregatePRInfo]
     )
 
 
+class ReviewerSuggestion(NamedTuple):
+    # full HTML code for the purposes of a webpage table entry, containing all suggested reviewers
+    code: str
+    # All potential reviewers suggested (by their github handle),
+    # including reviewers who are at their maximum review capacity or not on the review rotation.
+    # The returned suggestions are ranked; less busy reviewers come first.
+    all_potential_reviewers: List[str]
+
 # Suggest potential reviewers for a single pull request with given number.
-# We return a tuple (full code, reviewers) with information about all potential reviewers.
-# The first component is the full HTML code for the purposes of a webpage table entry, containing all suggested reviewers;
-# the second one contains all potential reviewers suggested (by their github handle).
-# The returned suggestions are ranked; less busy reviewers come first.
+# We return all reviewers whose top-level interest have the best possible match
+# for this PR.
 def suggest_reviewers(
     existing_assignments: dict[str, Tuple[List[int], float, int]], reviewers: List[ReviewerInfo], number: int, info: AggregatePRInfo,
     all_info: dict[int, AggregatePRInfo]  # aggregate information about all PRs
-) -> Tuple[str, List[str]]:
+) -> ReviewerSuggestion:
     # Look at all topic labels of this PR, and find all suitable reviewers.
     topic_labels = [lab.name for lab in info.labels if lab.name.startswith("t-") or lab.name in ["CI", "IMO"]]
     # Each reviewer, together with the list of top-level areas
@@ -157,7 +163,7 @@ def suggest_reviewers(
               matching_reviewers.append((rev, match))
     else:
         print(f"PR {number} has no topic labels: reviewer suggestions not implemented yet", file=sys.stderr)
-        return ("no topic labels: suggestions not implemented yet", [])
+        return ReviewerSuggestion("no topic labels: suggestions not implemented yet", [])
 
     # Future: decide how to customise and filter the output, lots of possibilities!
     # - no and one reviewer look sensible already
@@ -167,10 +173,10 @@ def suggest_reviewers(
     # - would showing the full interests (not just the top-level areas) be helpful?
     if not matching_reviewers:
         print(f"found no reviewers with matching interest for PR {number}", file=sys.stderr)
-        return ("found no reviewers with matching interest", [])
+        return ReviewerSuggestion("found no reviewers with matching interest", [])
     elif len(matching_reviewers) == 1:
         handle = matching_reviewers[0][0].github
-        return (f"{user_link(handle)}", [handle])
+        return ReviewerSuggestion(f"{user_link(handle)}", [handle])
     else:
         max_score = max([len(areas) for (_, areas) in matching_reviewers])
         if max_score > 1:
@@ -193,7 +199,7 @@ def suggest_reviewers(
             for (rev, areas, n) in with_curr_assignments
         ])
         suggested_reviewers = [rev.github for (rev, _areas, _n) in with_curr_assignments]
-        return (formatted, suggested_reviewers)
+        return ReviewerSuggestion(formatted, suggested_reviewers)
 
 
 # Suggest reviewers for a list of PRs: these are traversed in order, and for each PR a list
@@ -205,5 +211,5 @@ def suggest_reviewers_many(
     suggestions = {}
     for number in prs_to_assign:
         # TODO: filter these by a maximum review capacity, perhaps hard-coded to 10 PRs?
-        suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number], info)[1]
+        suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number], info).all_potential_reviewers
     return suggestions
