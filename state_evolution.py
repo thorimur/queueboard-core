@@ -151,13 +151,13 @@ def update_state(current: PRState, ev: Event) -> PRState:
         case LabelAddedRemoved(added, removed):
             # Remove any label which is both added and removed, and filter out irrelevant labels.
             both = set(added) & set(removed)
-            added = [l for l in added if l in label_categorisation_rules and l not in both]
-            removed = [l for l in removed if l in label_categorisation_rules and l not in both]
+            added = [lab for lab in added if lab in label_categorisation_rules and lab not in both]
+            removed = [lab for lab in removed if lab in label_categorisation_rules and lab not in both]
             # Any remaining labels to be removed should exist.
             new_labels = current.labels[:]
             for r in removed:
                 new_labels.remove(label_categorisation_rules[r])
-            return PRState(new_labels + [label_categorisation_rules[l] for l in added], current.ci, current.draft, current.from_fork)
+            return PRState(new_labels + [label_categorisation_rules[lab] for lab in added], current.ci, current.draft, current.from_fork)
         case _:
             print(f"unhandled event: {ev.change}")
             assert False

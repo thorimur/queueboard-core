@@ -320,7 +320,7 @@ def _compute_pr_entries(
             print(f"warning: PR {pr.number} has url differing from the inferred one:\n  actual:   {pr.url}\n  inferred: {infer_pr_url(pr.number)}", file=sys.stderr)
         labels = _write_labels(pr.labels, page_name, id)
         # Mild HACK: if a PR has label "t-algebra", we append the hidden string "label:t-algebra$" to make this searchable.
-        label_hack = hide('label:t-algebra$') if "t-algebra" in [l.name for l in pr.labels] else ""
+        label_hack = hide('label:t-algebra$') if "t-algebra" in [lab.name for lab in pr.labels] else ""
         branch_name = aggregate_information[pr.number].branch_name if pr.number in aggregate_information else "missing"
         description = aggregate_information[pr.number].description
         # Mild HACK: append each PR's author as "author:name" to the end of the author column (hidden),
@@ -640,9 +640,9 @@ def write_on_the_queue_page(
             # We emit more fine-grained information for "not ready" PRs.
             if aggregate_info[pr.number].is_draft:
                 curr2 = "marked draft"
-            if "WIP" in [l.name for l in aggregate_info[pr.number].labels]:
+            if "WIP" in [lab.name for lab in aggregate_info[pr.number].labels]:
                 curr2 = "labelled WIP"
-            elif "awaiting-CI" in [l.name for l in aggregate_info[pr.number].labels]:
+            elif "awaiting-CI" in [lab.name for lab in aggregate_info[pr.number].labels]:
                 (curr1, curr2) = ("", "does not pass CI")
             else:
                 match aggregate_info[pr.number].CI_status:

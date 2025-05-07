@@ -316,8 +316,8 @@ def test_determine_status() -> None:
     check([LabelKind.Delegated, LabelKind.Author], PRStatus.AwaitingAuthor)
     check([LabelKind.Delegated, LabelKind.Decision], PRStatus.AwaitingDecision)
     # Some tests for contradictory combinations.
-    for l in [LabelKind.Author, LabelKind.Decision, LabelKind.WIP]:
-        check([LabelKind.Bors, l], PRStatus.Contradictory)
+    for lab in [LabelKind.Author, LabelKind.Decision, LabelKind.WIP]:
+        check([LabelKind.Bors, lab], PRStatus.Contradictory)
     check([LabelKind.Bors, LabelKind.Author, LabelKind.WIP], PRStatus.Contradictory)
 
     check([LabelKind.Author, LabelKind.WIP], PRStatus.NotReady)

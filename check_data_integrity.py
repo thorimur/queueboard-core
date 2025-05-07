@@ -316,8 +316,8 @@ def compare_data_inner(rest: List[RESTData], aggregate: dict[int, AggregatePRInf
             outdated.append(pr.number)
         else:
             # For PR labels, also normalise the colours into lower-case and sort alphabetically.
-            norm1 = [Label(lab.name, lab.color.lower(), lab.url.replace(" ", "%20")) for lab in sorted(pr.labels, key=lambda l: l.name)]
-            norm2 = [Label(lab.name, lab.color.lower(), lab.url.replace(" ", "%20")) for lab in sorted(agg.labels, key=lambda l: l.name)]
+            norm1 = [Label(lab.name, lab.color.lower(), lab.url.replace(" ", "%20")) for lab in sorted(pr.labels, key=lambda lab: lab.name)]
+            norm2 = [Label(lab.name, lab.color.lower(), lab.url.replace(" ", "%20")) for lab in sorted(agg.labels, key=lambda lab: lab.name)]
             if different(norm1, norm2, "labels", pr.number):
                 outdated.append(pr.number)
     print(f"Compared information about {len(rest)} PRs, found {len(outdated)} PRs with different data")
