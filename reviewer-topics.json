@@ -268,7 +268,7 @@
   {
     "github_handle": "eric-wieser",
     "zulip_handle": "@**Eric Wieser**",
-    "top_level": ["t-algebra"],
+    "top_level": ["t-algebra", "t-meta"],
     "free_form": "algebra, infrastructure"
   },
   {
