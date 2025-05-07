@@ -228,9 +228,13 @@ def main() -> None:
 
     header = _make_h2("propose-reviewers", "Finding reviewers for stale unassigned PRs")
     pr_lists = compute_pr_list_from_aggregate_data_only(parsed)
-    suggestions = {
+    suggestions_pre = {
         pr.number: suggest_reviewers(stats.assignments, parsed_reviewers, pr.number, parsed[pr.number], parsed)
         for pr in pr_lists[Dashboard.Queue]
+    }
+    suggestions = {
+      n: (val.code, val.all_potential_reviewers)
+      for (n, val) in suggestions_pre.items()
     }
     # Future: have another column with a button to send a zulip DM to a
     # potential (e.g. selecting from the suggested ones).

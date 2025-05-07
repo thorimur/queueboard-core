@@ -386,6 +386,7 @@ def _compute_pr_entries(
                 entries.append(reviewer_str)
                 if names:
                     # Just allow contacting the first reviewer, for now.
+                    # Future: change this to one randomly selected reviewer instead?
                     # FUTURE: add a button with a drop-down, for the various options.
                     fn = f"contactMessage('{names[0]}', {pr.number})"
                     entries.append(f'<button onclick="{fn}">Ask {names[0]} for review</button>')

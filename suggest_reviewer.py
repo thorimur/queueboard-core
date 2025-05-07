@@ -82,10 +82,10 @@ def _compute_weight(pr: int, data: AggregatePRInfo) -> float:
         case PRStatus.AwaitingAuthor | PRStatus.AwaitingDecision:
             match data.last_status_change:
                 case None:
-                    print(f"info: PR {pr} has no last status update, assigning weight 0.1 as placeholder")
+                    print(f"info: PR {pr} has no last status update, assigning placehold weight 0.1")
                     return 0.1
                 case LastStatusChange(DataStatus.Missing, _, _, _) | LastStatusChange(DataStatus.Incomplete, _, _, _):
-                    print(f"info: PR {pr} has incomplete or missing last update status information, assigning 0.1")
+                    print(f"info: PR {pr} has incomplete or missing last update status information, assigning weight 0.1")
                     return 0.1
                 case LastStatusChange(DataStatus.Valid, _, delta, current):
                     assert current in [PRStatus.AwaitingAuthor, PRStatus.AwaitingDecision]
@@ -138,6 +138,11 @@ class ReviewerSuggestion(NamedTuple):
     # including reviewers who are at their maximum review capacity or not on the review rotation.
     # The returned suggestions are ranked; less busy reviewers come first.
     all_potential_reviewers: List[str]
+    # All reviewers among |all_potential_reviewers| who are on the review rotation
+    # and whose review capacity is not yet exceeded
+    all_available_reviewers: List[str]
+    # One reviewer among |all_available_reviewers|, randomly chosen (according to remaining review capacity)
+    suggested: str | None
 
 # Suggest potential reviewers for a single pull request with given number.
 # We return all reviewers whose top-level interest have the best possible match
@@ -163,7 +168,7 @@ def suggest_reviewers(
               matching_reviewers.append((rev, match))
     else:
         print(f"PR {number} has no topic labels: reviewer suggestions not implemented yet", file=sys.stderr)
-        return ReviewerSuggestion("no topic labels: suggestions not implemented yet", [])
+        return ReviewerSuggestion("no topic labels: suggestions not implemented yet", [], [], None)
 
     # Future: decide how to customise and filter the output, lots of possibilities!
     # - no and one reviewer look sensible already
@@ -173,10 +178,10 @@ def suggest_reviewers(
     # - would showing the full interests (not just the top-level areas) be helpful?
     if not matching_reviewers:
         print(f"found no reviewers with matching interest for PR {number}", file=sys.stderr)
-        return ReviewerSuggestion("found no reviewers with matching interest", [])
+        return ReviewerSuggestion("found no reviewers with matching interest", [], [], None)
     elif len(matching_reviewers) == 1:
         handle = matching_reviewers[0][0].github
-        return ReviewerSuggestion(f"{user_link(handle)}", [handle])
+        return ReviewerSuggestion(f"{user_link(handle)}", [handle], [handle], handle)
     else:
         max_score = max([len(areas) for (_, areas) in matching_reviewers])
         if max_score > 1:
@@ -198,8 +203,15 @@ def suggest_reviewers(
             user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n} (weighted) open assigned PRs(s)")
             for (rev, areas, n) in with_curr_assignments
         ])
-        suggested_reviewers = [rev.github for (rev, _areas, _n) in with_curr_assignments]
-        return ReviewerSuggestion(formatted, suggested_reviewers)
+        suggested_reviewers = [rev.github for (rev, _areas, _n_weighted) in with_curr_assignments]
+        # Future: replace 10 by rev.maximum_capacity and take "is on the rotation" into account
+        available_with_weights = [(rev.github, 10 - n_weighted) for (rev, _areas, n_weighted) in with_curr_assignments if n_weighted <= 10]
+        all_available_reviewers = [rev for (rev, _n) in available_with_weights]
+        chosen_reviewer = None
+        if all_available_reviewers:
+            import random
+            chosen_reviewer = random.choices(all_available_reviewers, weights=[n for (rev, n) in available_with_weights], k=1)[0]
+        return ReviewerSuggestion(formatted, suggested_reviewers, all_available_reviewers, chosen_reviewer)
 
 
 # Suggest reviewers for a list of PRs: these are traversed in order, and for each PR a list
