@@ -144,6 +144,11 @@ class ReviewerSuggestion(NamedTuple):
     # One reviewer among |all_available_reviewers|, randomly chosen (according to remaining review capacity)
     suggested: str | None
 
+
+# Default maximum capacity of (weighted) assigned PRs.
+DEFAULT_CAPACITY = 10
+
+
 # Suggest potential reviewers for a single pull request with given number.
 # We return all reviewers whose top-level interest have the best possible match
 # for this PR.
@@ -204,8 +209,9 @@ def suggest_reviewers(
             for (rev, areas, n) in with_curr_assignments
         ])
         suggested_reviewers = [rev.github for (rev, _areas, _n_weighted) in with_curr_assignments]
-        # Future: replace 10 by rev.maximum_capacity and take "is on the rotation" into account
-        available_with_weights = [(rev.github, 10 - n_weighted) for (rev, _areas, n_weighted) in with_curr_assignments if n_weighted <= 10]
+
+        # TODO: parse actual review capacity; take "is on the rotation" into account
+        available_with_weights = [(rev.github, DEFAULT_CAPACITY - n_weighted) for (rev, _areas, n_weighted) in with_curr_assignments if n_weighted <= DEFAULT_CAPACITY]
         all_available_reviewers = [rev for (rev, _n) in available_with_weights]
         chosen_reviewer = None
         if all_available_reviewers:
@@ -222,6 +228,5 @@ def suggest_reviewers_many(
 ) -> dict[int, List[str]]:
     suggestions = {}
     for number in prs_to_assign:
-        # TODO: filter these by a maximum review capacity, perhaps hard-coded to 10 PRs?
         suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number], info).all_potential_reviewers
     return suggestions
