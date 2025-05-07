@@ -29,6 +29,10 @@ class ReviewerInfo(NamedTuple):
     # Most (but not all) of these are t-something labels in mathlib.
     top_level: List[str]
     comment: str
+    # If a reviewer is "on the review rotation", i.e. willing to be auto-assigned PRs.
+    # This can be explicitly specified by the "auto-assign" field in the reviewer info file.
+    # If the field is missing, we assume a reviewer is willing to be assigned.
+    is_on_rotation: bool
 
 
 def read_reviewer_info() -> List[ReviewerInfo]:
@@ -39,7 +43,8 @@ def read_reviewer_info() -> List[ReviewerInfo]:
     with open("reviewer-topics.json", "r") as fi:
         reviewer_topics = json.load(fi)
     return [
-        ReviewerInfo(entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"])
+        ReviewerInfo(entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"],
+        entry["auto_assign"] if "auto_assign" in entry else True)
         for entry in reviewer_topics
     ]
 
@@ -210,8 +215,8 @@ def suggest_reviewers(
         ])
         suggested_reviewers = [rev.github for (rev, _areas, _n_weighted) in with_curr_assignments]
 
-        # TODO: parse actual review capacity; take "is on the rotation" into account
-        available_with_weights = [(rev.github, DEFAULT_CAPACITY - n_weighted) for (rev, _areas, n_weighted) in with_curr_assignments if n_weighted <= DEFAULT_CAPACITY]
+        # TODO: parse actual review capacity
+        available_with_weights = [(rev.github, DEFAULT_CAPACITY - n_weighted) for (rev, _areas, n_weighted) in with_curr_assignments if n_weighted <= DEFAULT_CAPACITY and rev.is_on_rotation]
         all_available_reviewers = [rev for (rev, _n) in available_with_weights]
         chosen_reviewer = None
         if all_available_reviewers:

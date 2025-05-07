@@ -196,7 +196,7 @@
     "zulip_handle": "@**Ruben Van de Velde**",
     "top_level": [],
     "free_form": "Interest- probably anything related to flt\nCompetence- mostly undergrad stuff / refactoring",
-    "auto-assign": false
+    "auto_assign": false
   },
   {
     "github_handle": "alreadydone",
@@ -257,7 +257,7 @@
     "zulip_handle": "@**Mario Carneiro**",
     "top_level": ["t-computability", "t-meta"],
     "free_form": "lean formalization, tactics, type theory, proof engineering",
-    "auto-assign": false
+    "auto_assign": false
   },
   {
     "github_handle": "ADedecker",
