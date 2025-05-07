@@ -241,13 +241,22 @@ def suggest_reviewers(
         return ReviewerSuggestion(formatted, suggested_reviewers, all_available_reviewers, chosen_reviewer)
 
 
-# Suggest reviewers for a list of PRs: these are traversed in order, and for each PR a list
-# of possible reviewers is created. This takes a maximum review capacity into account.
-# Return a dictionary (pr_number: proposed reviewers).
+# Suggest potential reviewers for a list of PRs.
+# These are traversed in order, and for each PR a suggested candidate reviewer
+# is returned --- who is on the review rotation and has available review capacity.
+# Return a dictionary (pr_number: candidate reviewer).
 def suggest_reviewers_many(
     existing_assignments: dict[str, Tuple[List[int], float, int]], reviewers: List[ReviewerInfo], prs_to_assign: List[int], info: dict[int, AggregatePRInfo]
-) -> dict[int, List[str]]:
+) -> dict[int, str]:
     suggestions = {}
+    stats = existing_assignments.copy()
     for number in prs_to_assign:
-        suggestions[number] = suggest_reviewers(existing_assignments, reviewers, number, info[number], info).all_potential_reviewers
+        suggested = suggest_reviewers(stats, reviewers, number, info[number], info).suggested
+        if suggested is None:
+            print(f"warning: no suitable review was found for PR {number}")
+            continue
+        suggestions[number] = suggested
+        (prs, n_weighted, n_all) = stats.get(suggested) or ([], 0, 0)
+        prs.append(number)
+        stats[suggested] = (prs, n_weighted + 1, n_all + 1)
     return suggestions

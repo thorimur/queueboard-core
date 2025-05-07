@@ -1063,9 +1063,9 @@ def main() -> None:
         lines = []
     outdated_prs = [int(s) for s in lines if s]
     to_analyze = [pr for pr in all_stale_unassigned if pr not in outdated_prs]
-    suggestions = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:10]), aggregate_info)
+    proposed_reviews = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:10]), aggregate_info)
     with open("suggested_assignments.json", "w") as fi:
-        print(json.dumps(suggestions, indent=4), file=fi)
+        print(json.dumps(proposed_reviews, indent=4), file=fi)
 
 
 if __name__ == "__main__":
