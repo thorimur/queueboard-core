@@ -178,9 +178,10 @@ def determine_PR_status(date: datetime, state: PRState) -> PRStatus:
 
     # Failing (or missing or running) CI counts like the WIP label.
     # In particular, it is compared against other labels.
-    # TODO: decide what to do with inessential failures for the classification...
-    # for infra PRs, just treating it as "fine" seems wrong.
-    # Perhaps still treat as failing, but expose differently on a dashboard?
+    # Note: some CI failures are "inessential" (i.e., some infra job failing for unrelated reasons).
+    # Always treating this as "fine" seems wrong (for some infra PRs, it means "there's a bug somewhere").
+    # Instead, we treat it like a failing job, but have an extra dashboard exposing these
+    # (so one can take a look quickly).
     if state.draft or state.ci in [CIStatus.Fail, CIStatus.FailInessential, CIStatus.Missing]:
         notready = True
     # The 'awaiting-CI' label or 'running' CI also mark a PR as 'not ready' yet:
