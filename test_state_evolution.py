@@ -5,9 +5,11 @@ Unit test for the code in `state_evolution.py`: all of these are very mathlib-sp
 """
 
 from ci_status import CIStatus
-from state_evolution import PRState, PRStatus, Event, LabelKind, Metadata, total_queue_time_inner, determine_state_changes, first_on_queue_inner, last_status_update_inner
+from classify_pr_state import LabelKind
+from state_evolution import PRState, PRStatus, Event, Metadata, total_queue_time_inner, determine_state_changes, first_on_queue_inner, last_status_update_inner
 
-from dateutil import relativedelta, tz
+from dateutil.relativedelta import relativedelta
+from dateutil import tz
 from datetime import datetime
 from typing import List, Tuple
 
