@@ -4,7 +4,12 @@
 Unit test for the code in `state_evolution.py`: all of these are very mathlib-specific, hence extracted into a separate file.
 """
 
-from state_evolution import *
+from ci_status import CIStatus
+from state_evolution import PRState, PRStatus, Event, LabelKind, Metadata, total_queue_time_inner, determine_state_changes, first_on_queue_inner, last_status_update_inner
+
+from dateutil import relativedelta, tz
+from datetime import datetime
+from typing import List, Tuple
 
 ######### Some basic unit tests ##########
 
