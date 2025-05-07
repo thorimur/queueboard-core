@@ -98,7 +98,7 @@
   {
     "github_handle": "adamtopaz",
     "zulip_handle": "@**Adam Topaz**",
-    "top_level": ["t-category-theory", "t-algebraic-geometry", "t-arithmetic-geometry", "t-galois-theory", "t-metaprogramming"],
+    "top_level": ["t-category-theory", "t-algebraic-geometry", "t-arithmetic-geometry", "t-galois-theory", "t-meta"],
     "free_form": ""
   },
   {

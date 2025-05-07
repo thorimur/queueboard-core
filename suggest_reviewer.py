@@ -177,9 +177,6 @@ def suggest_reviewers(
     if topic_labels:
         for rev in reviewers:
             reviewer_lab = rev.top_level
-            if "t-metaprogramming" in reviewer_lab:
-                reviewer_lab.remove("t-metaprogramming")
-                reviewer_lab.append("t-meta")
             match = [lab for lab in topic_labels if lab in reviewer_lab]
             # Do not propose a PR's author as potential reviewer.
             if rev.github != info.author:
