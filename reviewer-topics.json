@@ -258,5 +258,23 @@
     "top_level": ["t-computability", "t-meta"],
     "free_form": "lean formalization, tactics, type theory, proof engineering",
     "auto-assign": false
+  },
+  {
+    "github_handle": "ADedecker",
+    "zulip_handle": "@**Anatole Dedecker**",
+    "top_level": ["t-topology", "t-analysis"],
+    "free_form": "topology, functional analysis, calculus"
+  },
+  {
+    "github_handle": "eric-wieser",
+    "zulip_handle": "@**Eric Wieser**",
+    "top_level": ["t-algebra"],
+    "free_form": "algebra, infrastructure"
+  },
+  {
+    "github_handle": "hrmacbeth",
+    "zulip_handle": "@**Heather Macbeth**",
+    "top_level": ["t-differential-geometry", "t-analysis"],
+    "free_form": "geometry, analysis"
   }
 ]
