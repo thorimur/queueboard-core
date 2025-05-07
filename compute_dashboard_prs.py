@@ -6,7 +6,7 @@ This file contains the code for computing the PRs on each dashboard in |mathlib_
 """
 
 from datetime import datetime, timedelta, timezone
-from enum import Enum, auto, unique
+from enum import Enum, auto
 import json
 import sys
 from dateutil import parser, relativedelta
@@ -15,8 +15,8 @@ from typing import Dict, List, NamedTuple, Tuple
 from ci_status import CIStatus
 from classify_pr_state import (PRState, PRStatus,
                                determine_PR_status, label_categorisation_rules)
-from mathlib_dashboards import Dashboard, short_description, long_description, getIdTitle
-from util import my_assert_eq, format_delta, timedelta_tryParse, relativedelta_tryParse
+from mathlib_dashboards import Dashboard, getIdTitle
+from util import my_assert_eq, timedelta_tryParse, relativedelta_tryParse
 
 
 # The following structures are completely project-agnostic.
