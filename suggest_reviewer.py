@@ -170,7 +170,7 @@ def suggest_reviewers(
     all_info: dict[int, AggregatePRInfo]  # aggregate information about all PRs
 ) -> ReviewerSuggestion:
     # Look at all topic labels of this PR, and find all suitable reviewers.
-    topic_labels = [lab.name for lab in info.labels if lab.name.startswith("t-") or lab.name in ["CI", "IMO"]]
+    topic_labels = [lab.name for lab in info.labels if lab.name.startswith("t-") or lab.name in ["CI", "IMO", "tech debt"]]
     # Each reviewer, together with the list of top-level areas
     # relevant to this PR in which this reviewer is competent.
     matching_reviewers: List[Tuple[ReviewerInfo, List[str]]] = []
