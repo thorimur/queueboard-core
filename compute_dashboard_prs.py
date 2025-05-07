@@ -140,7 +140,7 @@ class AggregatePRInfo(NamedTuple):
 PLACEHOLDER_AGGREGATE_INFO = AggregatePRInfo(
     False, CIStatus.Missing, "master", "leanprover-community", "default-branch-name",
     "open", datetime.now(timezone.utc),
-    "unknown", "unknown title", "unknown description", [], -1, -1, [], -1, [], [], None, None, None, None, None,
+    "unknown", "unknown title", "unknown description", [], -1, -1, [], -1, [], [], (DataStatus.Missing, []), None, None, None, None,
 )
 
 
