@@ -22,6 +22,11 @@ from dashboard import (
     user_link,
 )
 
+
+# Default maximum capacity of (weighted) assigned PRs.
+DEFAULT_CAPACITY = 10
+
+
 class ReviewerInfo(NamedTuple):
     github: str
     zulip: str
@@ -29,6 +34,10 @@ class ReviewerInfo(NamedTuple):
     # Most (but not all) of these are t-something labels in mathlib.
     top_level: List[str]
     comment: str
+    # Maximum number of PRs (weighed by their status) that this PR is willing to review.
+    # Setting this to 0 is another way to opt out of the review rotation.
+    # If not explicitly specified, we assume |DEFAULT_CAPACITY|.
+    maximum_capacity: int
     # If a reviewer is "on the review rotation", i.e. willing to be auto-assigned PRs.
     # This can be explicitly specified by the "auto-assign" field in the reviewer info file.
     # If the field is missing, we assume a reviewer is willing to be assigned.
@@ -43,8 +52,11 @@ def read_reviewer_info() -> List[ReviewerInfo]:
     with open("reviewer-topics.json", "r") as fi:
         reviewer_topics = json.load(fi)
     return [
-        ReviewerInfo(entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"],
-        entry["auto_assign"] if "auto_assign" in entry else True)
+        ReviewerInfo(
+            entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"],
+            entry["maximum_capacity"] if "maximum_capacity" in entry else DEFAULT_CAPACITY,
+            entry["auto_assign"] if "auto_assign" in entry else True,
+        )
         for entry in reviewer_topics
     ]
 
@@ -150,10 +162,6 @@ class ReviewerSuggestion(NamedTuple):
     suggested: str | None
 
 
-# Default maximum capacity of (weighted) assigned PRs.
-DEFAULT_CAPACITY = 10
-
-
 # Suggest potential reviewers for a single pull request with given number.
 # We return all reviewers whose top-level interest have the best possible match
 # for this PR.
@@ -215,8 +223,11 @@ def suggest_reviewers(
         ])
         suggested_reviewers = [rev.github for (rev, _areas, _n_weighted) in with_curr_assignments]
 
-        # TODO: parse actual review capacity
-        available_with_weights = [(rev.github, DEFAULT_CAPACITY - n_weighted) for (rev, _areas, n_weighted) in with_curr_assignments if n_weighted <= DEFAULT_CAPACITY and rev.is_on_rotation]
+        available_with_weights = [
+            (rev.github, rev.maximum_capacity - n_weighted)
+            for (rev, _areas, n_weighted) in with_curr_assignments
+            if n_weighted < rev.maximum_capacity and rev.is_on_rotation
+        ]
         all_available_reviewers = [rev for (rev, _n) in available_with_weights]
         chosen_reviewer = None
         if all_available_reviewers:
