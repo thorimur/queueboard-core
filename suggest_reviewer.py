@@ -207,6 +207,9 @@ def suggest_reviewers(
             proposed_reviewers = [(rev, areas) for (rev, areas) in matching_reviewers if len(areas) == max_score]
         else:
             proposed_reviewers = [(rev, areas) for (rev, areas) in matching_reviewers if len(areas) > 0]
+        if not proposed_reviewers:
+            print(f"PR {number} has an area label, but found no reviewers with matching interests")
+            return ReviewerSuggestion("found no reviewers with interest in this area(s)", [], [], None)
 
         # Sort these reviewers according to how busy they are, by their current number of assignments.
         # (Not every reviewer has had an assignment so far, so we need to use a fall-back value.)
@@ -233,6 +236,8 @@ def suggest_reviewers(
         if all_available_reviewers:
             import random
             chosen_reviewer = random.choices(all_available_reviewers, weights=[n for (rev, n) in available_with_weights], k=1)[0]
+        else:
+            print(f"warning: PR {number} has {len(suggested_reviewers)} suitable reviewers (these: {suggested_reviewers}), but nobody has reviewing capacity right now")
         return ReviewerSuggestion(formatted, suggested_reviewers, all_available_reviewers, chosen_reviewer)
 
 
