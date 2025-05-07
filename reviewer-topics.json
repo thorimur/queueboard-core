@@ -195,7 +195,8 @@
     "github_handle": "Ruben-VandeVelde",
     "zulip_handle": "@**Ruben Van de Velde**",
     "top_level": [],
-    "free_form": "Interest- probably anything related to flt\nCompetence- mostly undergrad stuff / refactoring"
+    "free_form": "Interest- probably anything related to flt\nCompetence- mostly undergrad stuff / refactoring",
+    "auto-assign": false
   },
   {
     "github_handle": "alreadydone",
@@ -250,5 +251,12 @@
     "zulip_handle": "@**Kyle Miller**",
     "top_level": ["t-meta", "t-combinatorics"],
     "free_form": ""
+  },
+  {
+    "github_handle": "digama0",
+    "zulip_handle": "@**Mario Carneiro**",
+    "top_level": ["t-computability", "t-meta"],
+    "free_form": "lean formalization, tactics, type theory, proof engineering",
+    "auto-assign": false
   }
 ]
