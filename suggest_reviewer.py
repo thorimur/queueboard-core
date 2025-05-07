@@ -222,12 +222,12 @@ def suggest_reviewers(
         # Or also show information if a single (and the PR's only) area matches?
         if not topic_labels:
             formatted = ", ".join([
-                user_link(rev.github, f"{n} (weighted) open assigned PRs(s)")
+                user_link(rev.github, f"{n:0.1f} (weighted) open assigned PRs(s)")
                 for (rev, areas, n) in with_curr_assignments
             ])
         else:
             formatted = ", ".join([
-                user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n} (weighted) open assigned PRs(s)")
+                user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n:.1f} (weighted) open assigned PRs(s)")
                 for (rev, areas, n) in with_curr_assignments
             ])
         suggested_reviewers = [rev.github for (rev, _areas, _n_weighted) in with_curr_assignments]
