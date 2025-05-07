@@ -189,7 +189,7 @@ def suggest_reviewers(
         # FIXME: refine which information is actually useful here.
         # Or also show information if a single (and the PR's only) area matches?
         formatted = ", ".join([
-            user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n} recent open PR(s) currently assigned")
+            user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n} (weighted) open assigned PRs(s)")
             for (rev, areas, n) in with_curr_assignments
         ])
         suggested_reviewers = [rev.github for (rev, _areas, _n) in with_curr_assignments]

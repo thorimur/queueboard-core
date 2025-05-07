@@ -196,11 +196,14 @@ def main() -> None:
     all_recent = '<a title="number of all assigned PRs">Number of PRs ever assigned</a>'
     # NB. Add an empty column to please the formatting script.
     open_assigned = 'Open assigned PR(s)'
-    thead = _write_table_header(["User", open_assigned, "Number of them", all_recent, ""], "    ")
+    explanation="Each assigned PR is weighed according to its status: PRs on the queue or with just a merge conflict count fully, PRs awaiting author count 1/(#days in this state + 1), blocked PRs don't count"
+    thead = _write_table_header(["User", open_assigned, "Number", f'<a title="{explanation}">Weighted number</a>', all_recent, ""], "    ")
     tbody = ""
     for name, (prs, n_weighted, n_all) in stats.assignments.items():
         formatted_prs = [pr_link(int(pr), infer_pr_url(pr), parsed[pr].title) for pr in prs]
-        tbody += _write_table_row([user_link(name), ", ".join(formatted_prs), str(len(prs)), str(n_all), ""], "    ")
+        # FUTURE: add a detailed computation of this count, explanation how this sums up?
+        # (If so, make _compute_weight return a number and an explanatory string and use the latter here.)
+        tbody += _write_table_row([user_link(name), ", ".join(formatted_prs), str(len(prs)), f"{n_weighted:.1f}", str(n_all), ""], "    ")
     table = f"  <table>\n{thead}{tbody}  </table>"
     stats_section = f"{header}\n{intro}\n{stat}\n{table}"
 
@@ -215,7 +218,8 @@ def main() -> None:
     for rev in parsed_reviewers:
         if rev.github in stats.assignments:
             (pr_numbers, n_weighted, n_all) = stats.assignments[rev.github]
-            desc = f'<a title="{n_all} PR(s) ever assigned">{", ".join([str(n) for n in pr_numbers]) or "none"}</a>'
+            numbers = ", ".join([str(n) for n in pr_numbers]) if pr_numbers else "none"
+            desc = f'<a title="{n_weighted:.1f} weighed PRs; {n_all} PR(s) ever assigned">{numbers}</a>'
         else:
             desc = "none ever"
         tbody += _write_table_row([user_link(rev.github), rev.zulip, ", ".join(rev.top_level), rev.comment, desc, ""], "    ")
