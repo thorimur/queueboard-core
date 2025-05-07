@@ -15,7 +15,7 @@ from compute_dashboard_prs import LastStatusChange, DataStatus
 from datetime import datetime
 from os import path
 
-from dateutil import parser
+from dateutil import parser, tz
 
 from dashboard import (
     AggregatePRInfo,
@@ -72,8 +72,8 @@ def _compute_weight(pr: int, data: AggregatePRInfo) -> float:
     # We don't use data.last_status_change as that is None for stubborn PRs
     # (whereas we still classify them using labels and CI data).
     labels: List[LabelKind] = [label_categorisation_rules[lab.name] for lab in data.labels if lab.name in label_categorisation_rules]
-    state = PRState(labels, data.CI_status, data.is_draft, data.head_repo == 'leanprover-community')
-    status: PRStatus = determine_PR_status(datetime(2025, 1, 1), state)
+    state = PRState(labels, data.CI_status, data.is_draft, data.head_repo != 'leanprover-community')
+    status: PRStatus = determine_PR_status(datetime(2025, 1, 1, tzinfo=tz.tzutc()), state)
     match status:
         case PRStatus.AwaitingReview | PRStatus.MergeConflict:
             return 1.0
