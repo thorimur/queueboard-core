@@ -182,8 +182,8 @@ def suggest_reviewers(
             if rev.github != info.author:
               matching_reviewers.append((rev, match))
     else:
-        print(f"PR {number} has no topic labels: reviewer suggestions not implemented yet", file=sys.stderr)
-        return ReviewerSuggestion("no topic labels: suggestions not implemented yet", [], [], None)
+        # Do not propose a PR's author as potential reviewer.
+        matching_reviewers = [(rev, []) for rev in reviewers if rev.github != info.author]
 
     # Future: decide how to customise and filter the output, lots of possibilities!
     # - no and one reviewer look sensible already
@@ -198,15 +198,18 @@ def suggest_reviewers(
         handle = matching_reviewers[0][0].github
         return ReviewerSuggestion(f"{user_link(handle)}", [handle], [handle], handle)
     else:
-        max_score = max([len(areas) for (_, areas) in matching_reviewers])
-        if max_score > 1:
-            # If there are several areas, prefer reviewers which match the highest number of them.
-            proposed_reviewers = [(rev, areas) for (rev, areas) in matching_reviewers if len(areas) == max_score]
+        if not topic_labels:
+            proposed_reviewers = [(rev, []) for rev in reviewers]
         else:
-            proposed_reviewers = [(rev, areas) for (rev, areas) in matching_reviewers if len(areas) > 0]
-        if not proposed_reviewers:
-            print(f"PR {number} has an area label, but found no reviewers with matching interests")
-            return ReviewerSuggestion("found no reviewers with interest in this area(s)", [], [], None)
+            max_score = max([len(areas) for (_, areas) in matching_reviewers])
+            if max_score > 1:
+                # If there are several areas, prefer reviewers which match the highest number of them.
+                proposed_reviewers = [(rev, areas) for (rev, areas) in matching_reviewers if len(areas) == max_score]
+            else:
+                proposed_reviewers = [(rev, areas) for (rev, areas) in matching_reviewers if len(areas) > 0]
+            if not proposed_reviewers:
+                print(f"PR {number} has an area label, but found no reviewers with matching interests")
+                return ReviewerSuggestion("found no reviewers with interest in this area(s)", [], [], None)
 
         # Sort these reviewers according to how busy they are, by their current number of assignments.
         # (Not every reviewer has had an assignment so far, so we need to use a fall-back value.)
@@ -217,10 +220,16 @@ def suggest_reviewers(
         with_curr_assignments = sorted(with_curr_assignments, key=lambda s: s[2])
         # FIXME: refine which information is actually useful here.
         # Or also show information if a single (and the PR's only) area matches?
-        formatted = ", ".join([
-            user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n} (weighted) open assigned PRs(s)")
-            for (rev, areas, n) in with_curr_assignments
-        ])
+        if not topic_labels:
+            formatted = ", ".join([
+                user_link(rev.github, f"{n} (weighted) open assigned PRs(s)")
+                for (rev, areas, n) in with_curr_assignments
+            ])
+        else:
+            formatted = ", ".join([
+                user_link(rev.github, f"relevant area(s) of competence: {', '.join(areas)}{f'; comments: {rev.comment}' if rev.comment else ''}; {n} (weighted) open assigned PRs(s)")
+                for (rev, areas, n) in with_curr_assignments
+            ])
         suggested_reviewers = [rev.github for (rev, _areas, _n_weighted) in with_curr_assignments]
 
         available_with_weights = [
