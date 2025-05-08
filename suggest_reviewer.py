@@ -125,8 +125,9 @@ def _compute_weight(pr: int, data: AggregatePRInfo) -> float:
 # if it is waiting on the PR author or zulip, it has weight 1/(t+t)
 # (where t is the number of days since the PR was last on the queue),
 # blocked PRs get weight 0.
-def _compute_assignment_weight(prs : List[int], all_aggregate_info: dict[int, AggregatePRInfo]) -> float:
-    return sum([_compute_weight(pr, all_aggregate_info[pr]) for pr in prs])
+# Self-assigned PRs also get weight 0.
+def _compute_assignment_weight(reviewer: str, prs : List[int], all_aggregate_info: dict[int, AggregatePRInfo]) -> float:
+    return sum([_compute_weight(pr, all_aggregate_info[pr]) for pr in prs if all_aggregate_info[pr].author != reviewer])
 
 
 def collect_assignment_statistics(all_aggregate_info: dict[int, AggregatePRInfo]) -> AssignmentStatistics:
@@ -139,7 +140,7 @@ def collect_assignment_statistics(all_aggregate_info: dict[int, AggregatePRInfo]
     assigned_open_prs = []
     for reviewer, data in assignments.items():
         open_assigned = sorted([entry["number"] for entry in data if entry["state"] == "open"])
-        numbers[reviewer] = (open_assigned, _compute_assignment_weight(open_assigned, all_aggregate_info), len(data))
+        numbers[reviewer] = (open_assigned, _compute_assignment_weight(reviewer, open_assigned, all_aggregate_info), len(data))
         assigned_open_prs.extend(open_assigned)
     num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
     assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
