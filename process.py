@@ -273,6 +273,10 @@ def compute_infinity_cosmos_data(now: str, all_open_pr_items: dict) -> dict:
     return {"timestamp": now, "prs": prs}
 
 def main() -> None:
+    fast = False
+    if len(sys.argv) == 2:
+        if sys.argv[1] == '--fast':
+            fast = True
     updated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     label_colours: dict[str, str] = dict()
     all_pr_data: List[dict] = []
@@ -304,12 +308,14 @@ def main() -> None:
                             eprint(f"warning: label {name} is assigned colours {colour} and {label_colours[name]}")
                         else:
                             label_colours[name] = colour
-                all_pr_data.append(get_aggregate_data(data, only_basic_info))
-    all_prs = {
-        "timestamp": updated,
-        "label_colours": dict(sorted(label_colours.items())),
-        "pr_statusses": all_pr_data,
-    }
+                if (not fast) or data["data"]["repository"]["pullRequest"]["state"] == "OPEN":
+                    all_pr_data.append(get_aggregate_data(data, only_basic_info))
+    if not fast:
+        all_prs = {
+            "timestamp": updated,
+            "label_colours": dict(sorted(label_colours.items())),
+            "pr_statusses": all_pr_data,
+        }
     just_open_prs = {
         "timestamp": updated,
         "label_colours": dict(sorted(label_colours.items())),
@@ -352,8 +358,9 @@ def main() -> None:
 
     infty_cosmos_data = compute_infinity_cosmos_data(updated, just_open_prs["pr_statusses"])
 
-    with open(path.join("processed_data", "all_pr_data.json"), "w") as f:
-        print(json.dumps(all_prs, indent=4), file=f)
+    if not fast:
+        with open(path.join("processed_data", "all_pr_data.json"), "w") as f:
+            print(json.dumps(all_prs, indent=4), file=f)
     with open(path.join("processed_data", "open_pr_data.json"), "w") as f:
         print(json.dumps(just_open_prs, indent=4), file=f)
     with open(path.join("processed_data", "assignment_data.json"), "w") as f:
