@@ -84,7 +84,7 @@ The data in the json files conceptually duplicates the aggregate data downloaded
 - `mathlib_dashboards.py` defines the various dashboards which are present on the generated HTML page
 - `compute_dashboard_prs.py` contains the logic for computing which PRs belong to each dashboard in `mathlib_dashboards.py`
 - `suggest_reviewer.py` contains logic for suggesting a reviewer for a given PR
-- `suggested_assignments.json` is an **experimental** file suggesting reviewers for stale unassigned PRs. (This file may be (re)moved in the future, or this step moved to the backend.)
+- `automatic_assignments.json` is an **experimental** file suggesting reviewers for stale unassigned PRs. (This file may be (re)moved in the future, or this step moved to the backend.)
 
 **Architecture invariant.** The output of `dashboard.py` only depends on its command line arguments, the contents of the `processed_data` directory and its current time: with both fixed, it is deterministic. In particular, it makes no network requests. All reading of input files is constrained to one method `read_json_files` in the beginning.
 

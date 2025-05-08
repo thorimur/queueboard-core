@@ -1064,7 +1064,7 @@ def main() -> None:
     outdated_prs = [int(s) for s in lines if s]
     to_analyze = [pr for pr in all_stale_unassigned if pr not in outdated_prs]
     proposed_reviews = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:10]), aggregate_info)
-    with open("suggested_assignments.json", "w") as fi:
+    with open("automatic_assignments.json", "w") as fi:
         print(json.dumps(proposed_reviews, indent=4), file=fi)
 
 

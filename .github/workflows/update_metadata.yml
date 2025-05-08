@@ -92,7 +92,7 @@ jobs:
         git config --local user.name "GitHub Action"
         # Temporarily rename the generated HTML files
         # to avoid a name collision with existing files on the gh-pages branch.
-        mv suggested_assignments.json tmp0.json
+        mv automatic_assignments.json tmp0.json
         mv index.html tmp.html
         mv on_the_queue.html tmp2.html
         mv review_dashboard.html tmp3.html
@@ -101,14 +101,14 @@ jobs:
         mv triage.html tmp6.html
         git fetch --depth 1 origin gh-pages
         git checkout gh-pages
-        mv tmp0.json suggested_assignments.json
+        mv tmp0.json automatic_assignments.json
         mv tmp.html index.html
         mv tmp2.html on_the_queue.html
         mv tmp3.html review_dashboard.html
         mv tmp4.html maintainers_quick.html
         mv tmp5.html help_out.html
         mv tmp6.html triage.html
-        git add suggested_assignments.json
+        git add automatic_assignments.json
         git add index.html
         git add on_the_queue.html
         git add review_dashboard.html
