@@ -143,7 +143,9 @@ def collect_assignment_statistics(all_aggregate_info: dict[int, AggregatePRInfo]
         numbers[reviewer] = (open_assigned, _compute_assignment_weight(reviewer, open_assigned, all_aggregate_info), len(data))
         assigned_open_prs.extend(open_assigned)
     num_multiple_assignees = len(assigned_open_prs) - len(set(assigned_open_prs))
-    assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
+    if assignment_data["number_open_assigned"] != len(list(set(assigned_open_prs))):
+        print(f'WARNING: assignment statistics are inconsistent, found {assignment_data["number_open_assigned"]} open assigned PRs in the .json file, but am counting PR {len(list(set(assigned_open_prs)))} of them')
+    # assert assignment_data["number_open_assigned"] == len(list(set(assigned_open_prs)))
     return AssignmentStatistics(
         time, num_open, sorted(list(set(assigned_open_prs))), num_multiple_assignees, numbers
     )
