@@ -1048,8 +1048,8 @@ def main() -> None:
     write_help_out_page(updated, prs_to_list, aggregate_info)
     write_triage_page(updated, prs_to_list, all_pr_status, aggregate_info, nondraft_PRs, draft_PRs)
 
-    # As a final feature, we propose a reviewer for 10 (randomly drawn) stale unassigned pull requests,
-    # and write this information to "proposed_assignments.json".
+    # As a final feature, we propose a reviewer for 20 (randomly drawn) stale unassigned pull requests,
+    # and write this information to "automatic_assignments.json".
     # XXX: importing this at the beginning leads to a circular import; importing it here seems to work.
     from suggest_reviewer import read_reviewer_info, collect_assignment_statistics, suggest_reviewers_many
     reviewer_info = read_reviewer_info()
@@ -1063,7 +1063,7 @@ def main() -> None:
         lines = []
     outdated_prs = [int(s) for s in lines if s]
     to_analyze = [pr for pr in all_stale_unassigned if pr not in outdated_prs]
-    proposed_reviews = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:10]), aggregate_info)
+    proposed_reviews = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:20]), aggregate_info)
     with open("automatic_assignments.json", "w") as fi:
         print(json.dumps(proposed_reviews, indent=4), file=fi)
 
