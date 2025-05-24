@@ -20,7 +20,7 @@ class Dashboard(Enum):
     Queue = 0
     QueueNewContributor = auto()
     QueueEasy = auto()
-    # All PRs on the queue which are unassigned and have not been updated in the past two weeks.
+    # All PRs on the queue which are unassigned and have not been updated in the past week.
     # We use the real last update, not github's date.
     QueueStaleUnassigned = auto()
     # All assigned PRs on the review queue without any update in the past two weeks.
@@ -71,7 +71,7 @@ def short_description(kind: Dashboard) -> str:
         Dashboard.QueueEasy: "PRs on the review queue which are labelled 'easy'",
         Dashboard.QueueTechDebt: "PRs on the review queue which are labelled 'tech debt' or 'longest-pole",
         Dashboard.QueueStaleAssigned: "assigned PRs on the review queue without activity in the past two weeks",
-        Dashboard.QueueStaleUnassigned: "unassigned PRs on the review queue with no meaningful activity in the past two weeks",
+        Dashboard.QueueStaleUnassigned: "unassigned PRs on the review queue with no meaningful activity in the past week",
         Dashboard.StaleMaintainerMerge: "stale PRs labelled maintainer merge",
         Dashboard.AllMaintainerMerge: "PRs labelled maintainer merge",
         Dashboard.StaleDelegated: "stale delegated PRs",

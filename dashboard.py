@@ -930,10 +930,10 @@ def write_triage_page(
             elif two_weeks_ago <= foq_time:
                 recent_on_queue.append(pr.number)
 
-    # PRs on the queue which are unassigned and have had no meaningful update (i.e. status change) in the past two weeks.
+    # PRs on the queue which are unassigned and have had no meaningful update (i.e. status change) in the past week.
     unassigned = len(prs_to_list[Dashboard.QueueStaleUnassigned])
-    # Awaiting review, assigned and not updated in two weeks.
-    # TODO/future: use a better measure of no activity, such as "no comment/review comment from anybody but the PR author".
+    # Awaiting review, assigned and no meaningful update in two weeks.
+    # (This includes PRs which were reviewed, when the reviewer forgot to change the PR label.)
     stale_assigned = len(prs_to_list[Dashboard.QueueStaleAssigned])
     review_heading = f"""\n{_make_h2('review-status', 'Review status')}
   <p>There are currently <strong>{len(prs_to_list[Dashboard.Queue])}</strong> {link_to(Dashboard.Queue, "PRs awaiting review", "review_dashboard.html")}. Among these,</p>
@@ -942,7 +942,7 @@ def write_triage_page(
     <li><strong>{len(prs_to_list[Dashboard.QueueTechDebt])}</strong> are addressing technical debt ({link_to(Dashboard.QueueTechDebt, "namely these", "review_dashboard.html")}), and</li>
     <li><strong>{len(recent_on_queue)}</strong> appeared on the review queue within the last two weeks.</li>
   </ul>
-  <p>On the other hand, {link_to(Dashboard.QueueStaleUnassigned, f"<strong>{unassigned}</strong> PRs")} are unassigned and have not seen a status change in two weeks, and {link_to(Dashboard.QueueStaleAssigned, f"<strong>{stale_assigned}</strong> PRs")} are assigned, without recent review activity.</p>"""
+  <p>On the other hand, {link_to(Dashboard.QueueStaleUnassigned, f"<strong>{unassigned}</strong> PRs")} are unassigned and have not seen a status change in a week, and {link_to(Dashboard.QueueStaleAssigned, f"<strong>{stale_assigned}</strong> PRs")} are assigned, without recent review activity.</p>"""
     review_heading = "\n  ".join(review_heading.splitlines())
 
     # Write a dashboard of unassigned PRs: we can safely skip the "assignee" column.

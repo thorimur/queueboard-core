@@ -497,13 +497,15 @@ def determine_pr_dashboards(
     prs_to_list[Dashboard.StaleNewContributor] = prs_with_label(one_week_stale, "new-contributor")
 
     stale_queue = []
+    very_stale_queue = []
     for pr in queue:
         last_real_update = aggregate_info[pr.number].last_status_change
         if last_real_update is not None and last_real_update.time < two_weeks_ago:
+            very_stale_queue.append(pr)
+        if last_real_update is not None and last_real_update.time < a_week_ago:
             stale_queue.append(pr)
     prs_to_list[Dashboard.QueueStaleUnassigned] = [pr for pr in stale_queue if not aggregate_info[pr.number].assignees]
-    # TODO/Future: use a more refined measure of activity!
-    prs_to_list[Dashboard.QueueStaleAssigned] = [pr for pr in stale_queue if aggregate_info[pr.number].assignees]
+    prs_to_list[Dashboard.QueueStaleAssigned] = [pr for pr in very_stale_queue if aggregate_info[pr.number].assignees]
 
     (bad_title, unlabelled, contradictory) = compute_dashboards_bad_labels_title(nondraft_PRs)
     prs_to_list[Dashboard.BadTitle] = bad_title
