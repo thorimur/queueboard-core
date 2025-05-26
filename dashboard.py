@@ -193,9 +193,6 @@ STANDARD_ALIAS_MAPPING = """
   }
 """
 
-# NB: keep this list in sync with any dashboard using ExtraColumnSettings.show_approvals(...).
-TABLES_WITH_APPROVALS = [Dashboard.QueueStaleUnassigned, Dashboard.QueueStaleAssigned, Dashboard.Approved]
-table_test = " || ".join([f'tableId == "{getTableId(kind)}"' for kind in TABLES_WITH_APPROVALS])
 
 _TEMPLATE_SCRIPT = """
   let diff_stat = DataTable.type('diff_stat', {
@@ -261,18 +258,34 @@ $(document).ready( function () {
     };
   }
   $('table').each(function () {
-    const tableId = $(this).attr('id')
-    let tableOptions = { ...options }
-    const show_approval = {table_test};
-    tableOptions.order = show_approval ? sort_config_approvals : sort_config;
-    $(this).DataTable(tableOptions);
+    {TABLE_CONFIGURATION}
   })
 });
 """
 
 
 def get_script(alias_mapping: str, table_test: str) -> str:
-    return _TEMPLATE_SCRIPT.replace("{ALIAS_MAPPING}", alias_mapping).replace("{table_test}", table_test)
+    # NB. This is four-space indented, just like the eventual javascript code.
+    std_table_config = """
+    const tableId = $(this).attr('id')
+    let tableOptions = { ...options }
+    const show_approval = {table_test};
+    tableOptions.order = show_approval ? sort_config_approvals : sort_config;
+    $(this).DataTable(tableOptions);
+    """.strip().replace("{table_test}", table_test)
+    simple_table_config = """
+    const tableId = $(this).attr('id') || "";
+    if (tableId.startsWith("t-")) {
+      $(this).DataTable(options);
+    }
+    """.strip()
+    table_config = std_table_config if table_test != "" else simple_table_config
+    return _TEMPLATE_SCRIPT.replace("{ALIAS_MAPPING}", alias_mapping).replace("{TABLE_CONFIGURATION}", table_config)
+
+
+# NB: keep this list in sync with any dashboard using ExtraColumnSettings.show_approvals(...).
+TABLES_WITH_APPROVALS = [Dashboard.QueueStaleUnassigned, Dashboard.QueueStaleAssigned, Dashboard.Approved]
+table_test = " || ".join([f'tableId == "{getTableId(kind)}"' for kind in TABLES_WITH_APPROVALS])
 
 # This javascript code is placed at the bottom of each dashboard page.
 STANDARD_SCRIPT = get_script(STANDARD_ALIAS_MAPPING, table_test)
