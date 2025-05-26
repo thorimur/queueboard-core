@@ -233,9 +233,7 @@ $(document).ready( function () {
   const search_params = params.get("search");
   const pageLength = params.get("length") || 10;
   const sort_params = params.getAll("sort");
-  // The configuration for initial sorting of tables, for tables with and without approvals.
-  let sort_config = [];
-  let sort_config_approvals = [];
+  {SORT_CONFIG1}
   for (const config of sort_params) {
     if (!config.includes('-')) {
       console.log(`invalid value ${config} passed as sort parameter`);
@@ -246,8 +244,7 @@ $(document).ready( function () {
       console.log(`invalid sorting direction ${dir} passed as sorting configuration`);
       continue;
     }
-    sort_config.push([getIdx(col, false), dir]);
-    sort_config_approvals.push([getIdx(col, true), dir]);
+    {SORT_CONFIG2}
    }
   const options = {
     stateDuration: 0,
@@ -283,8 +280,19 @@ def tables_configuration_script(alias_mapping: str, table_test: str) -> str:
       $(this).DataTable(options);
     }
     """.strip()
+    sort_config1 = """
+    // The configuration for initial sorting of tables, for tables with and without approvals.
+    let sort_config = [];
+    let sort_config_approvals = [];
+    """.strip().replace("    ", "  ")
+    sort_config2 = """
+    sort_config.push([getIdx(col, false), dir]);
+    sort_config_approvals.push([getIdx(col, true), dir]);
+    """.strip()
+
     table_config = std_table_config if table_test != "" else simple_table_config
-    return _TEMPLATE_SCRIPT.replace("{ALIAS_MAPPING}", alias_mapping).replace("{TABLE_CONFIGURATION}", table_config)
+    return (_TEMPLATE_SCRIPT.replace("{SORT_CONFIG1}", sort_config1).replace("{SORT_CONFIG2}", sort_config2)
+        .replace("{ALIAS_MAPPING}", alias_mapping).replace("{TABLE_CONFIGURATION}", table_config))
 
 
 # NB: keep this list in sync with any dashboard using ExtraColumnSettings.show_approvals(...).
