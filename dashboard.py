@@ -194,6 +194,9 @@ STANDARD_ALIAS_MAPPING = """
 """
 
 
+# Template for configuring all datatables on a generated webpage.
+# Has two template parameters ALIAS_MAPPING and TABLE_CONFIGURATION.
+# NB. We always specify a default sorting order, but may override that in the table configuration.
 _TEMPLATE_SCRIPT = """
   let diff_stat = DataTable.type('diff_stat', {
     detect: function (data) { return false; },
@@ -251,6 +254,7 @@ $(document).ready( function () {
     pageLength: pageLength,
     "searching": true,
     columnDefs: [{ type: 'diff_stat', targets: 5 }, { visible: false, targets: [3, 6, 9] } ],
+    order: sort_config,
   };
   if (params.has("search")) {
     options.search = {
@@ -264,7 +268,7 @@ $(document).ready( function () {
 """
 
 
-def get_script(alias_mapping: str, table_test: str) -> str:
+def tables_configuration_script(alias_mapping: str, table_test: str) -> str:
     # NB. This is four-space indented, just like the eventual javascript code.
     std_table_config = """
     const tableId = $(this).attr('id')
@@ -288,7 +292,7 @@ TABLES_WITH_APPROVALS = [Dashboard.QueueStaleUnassigned, Dashboard.QueueStaleAss
 table_test = " || ".join([f'tableId == "{getTableId(kind)}"' for kind in TABLES_WITH_APPROVALS])
 
 # This javascript code is placed at the bottom of each dashboard page.
-STANDARD_SCRIPT = get_script(STANDARD_ALIAS_MAPPING, table_test)
+STANDARD_SCRIPT = tables_configuration_script(STANDARD_ALIAS_MAPPING, table_test)
 
 
 # Settings for which 'extra columns' to display in a PR dashboard.

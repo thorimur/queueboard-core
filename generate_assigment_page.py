@@ -21,6 +21,7 @@ from dashboard import (
     _write_table_header,
     _write_table_row,
     determine_pr_dashboards,
+    tables_configuration_script,
     infer_pr_url,
     parse_aggregate_file,
     pr_link,
@@ -102,78 +103,6 @@ ALIAS_MAPPING = """
   }
 """
 
-# Copy-pasted and simplified from STANDARD_SCRIPT.
-CUSTOM_SCRIPT = """
-  let diff_stat = DataTable.type('diff_stat', {
-    detect: function (data) { return false; },
-    order: {
-      pre: function (data) {
-        // Input has the form
-        // <span style="color:green">42</span>/<span style="color:red">13</span>,
-        // we extract the tuple (42, 13) and compute their sum 42+13.
-        let parts = data.split('</span>/<span', 2);
-        return Number(parts[0].slice(parts[0].search(">") + 1)) + Number(parts[1].slice(parts[1].search(">") + 1, -7));
-      }
-    },
-  });
-  let formatted_relativedelta = DataTable.type('formatted_relativedelta', {
-    detect: function (data) { return data.startsWith('<div style="display:none">'); },
-    order: {
-      pre: function (data) {
-        let main = (data.split('</div>', 2))[0].slice('<div style="display:none">'.length);
-        // If there is no input data, main is the empty string.
-        if (!main.includes('-')) {
-            return -1;
-        }
-        const [days, seconds, ...rest] = main.split('-');
-        return 100000 * Number(days) + Number(seconds);
-      }
-    }
-  })
-{ALIAS_MAPPING}
-$(document).ready( function () {
-  // Parse the URL for any initial configuration settings.
-  // Future: use this for deciding which table to apply the options to.
-  let fragment = window.location.hash;
-  const params = new URLSearchParams(document.location.search);
-  const search_params = params.get("search");
-  const pageLength = params.get("length") || 10;
-  const sort_params = params.getAll("sort");
-  // The configuration for initial sorting of tables.
-  let sort_config = [];
-  for (const config of sort_params) {
-    if (!config.includes('-')) {
-      console.log(`invalid value ${config} passed as sort parameter`);
-      continue;
-    }
-    const [col, dir, ...rest] = config.split('-');
-    if (dir != "asc" && dir != "desc") {
-      console.log(`invalid sorting direction ${dir} passed as sorting configuration`);
-      continue;
-    }
-    sort_config.push([getIdx(col), dir]);
-   }
-  const options = {
-    stateDuration: 0,
-    pageLength: pageLength,
-    "searching": true,
-    columnDefs: [{ type: 'diff_stat', targets: 5 }, { visible: false, targets: [3, 6, 9] } ],
-    order: sort_config,
-  };
-  if (params.has("search")) {
-    options.search = {
-        search: search_params
-    };
-  }
-  $('table').each(function () {
-    const tableId = $(this).attr('id') || "";
-    if (tableId.startsWith("t-")) {
-      $(this).DataTable(options);
-    }
-  })
-});
-""".replace("{ALIAS_MAPPING}", ALIAS_MAPPING)
-
 
 def main() -> None:
     with open(path.join("processed_data", "all_pr_data.json"), "r") as fi:
@@ -248,7 +177,10 @@ def main() -> None:
     header = _make_h2("propose-reviewers-all", "Finding reviewers for all unassigned PRs")
     table = write_dashboard("assign-reviewer.html", pr_lists, Dashboard.Queue, parsed, settings, False, suggestions, "propose-reviewers-all")
     propose_all = f"{header}\n{table}\n"
-    write_webpage(f"{title}\n{welcome}\n{update}\n{stats_section}\n{reviewers}\n{propose_all}\n{propose_stale}", "assign-reviewer.html", custom_script=CUSTOM_SCRIPT)
+    write_webpage(
+      f"{title}\n{welcome}\n{update}\n{stats_section}\n{reviewers}\n{propose_all}\n{propose_stale}",
+      "assign-reviewer.html", custom_script=tables_configuration_script(ALIAS_MAPPING, "")
+    )
     print('Finished generating a PR assignment overview page. Open "assign-reviewer.html" in your browser to view it.')
 
 
