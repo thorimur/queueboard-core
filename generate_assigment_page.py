@@ -59,7 +59,7 @@ def compute_pr_list_from_aggregate_data_only(aggregate_data: dict[int, Aggregate
 
 
 # Copy-pasted from STANDARD_ALIAS_MAPPING, but the indices are different.
-# Adjust this script, if there is a logic change we want to mirrow/a major column being added.
+# Adjust this script, if there is a logic change we want to mirror/a major column is added.
 # NB. Keep this in sync with the ExtraColumnSettings below.
 ALIAS_MAPPING = """
   // Return a table column index corresponding to a human-readable alias.
