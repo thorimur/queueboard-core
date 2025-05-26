@@ -197,8 +197,7 @@ STANDARD_ALIAS_MAPPING = """
 TABLES_WITH_APPROVALS = [Dashboard.QueueStaleUnassigned, Dashboard.QueueStaleAssigned, Dashboard.Approved]
 table_test = " || ".join([f'tableId == "{getTableId(kind)}"' for kind in TABLES_WITH_APPROVALS])
 
-# This javascript code is placed at the bottom of each dashboard page.
-STANDARD_SCRIPT = """
+_TEMPLATE_SCRIPT = """
   let diff_stat = DataTable.type('diff_stat', {
     detect: function (data) { return false; },
     order: {
@@ -225,7 +224,7 @@ STANDARD_SCRIPT = """
       }
     }
   })
-{STANDARD_ALIAS_MAPPING}
+{ALIAS_MAPPING}
 $(document).ready( function () {
   // Parse the URL for any initial configuration settings.
   // Future: use this for deciding which table to apply the options to.
@@ -269,7 +268,14 @@ $(document).ready( function () {
     $(this).DataTable(tableOptions);
   })
 });
-""".replace("{STANDARD_ALIAS_MAPPING}", STANDARD_ALIAS_MAPPING).replace("{table_test}", table_test)
+"""
+
+
+def get_script(alias_mapping: str, table_test: str) -> str:
+    return _TEMPLATE_SCRIPT.replace("{ALIAS_MAPPING}", alias_mapping).replace("{table_test}", table_test)
+
+# This javascript code is placed at the bottom of each dashboard page.
+STANDARD_SCRIPT = get_script(STANDARD_ALIAS_MAPPING, table_test)
 
 
 # Settings for which 'extra columns' to display in a PR dashboard.
