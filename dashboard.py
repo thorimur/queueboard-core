@@ -619,7 +619,7 @@ def write_on_the_queue_page(
             # TODO: take the author from the aggregate information instead
             # requires refactoring this function accordingly
             name = "dependabot(?)"
-        has_topic_label = any(lab.name.startswith("t-") for lab in pr.labels)
+        has_topic_label = any((lab.name.startswith("t-") or lab.name in ["CI", "IMO"]) for lab in pr.labels)
         missing_topic_label = pr.title.startswith("feat") and (not has_topic_label)
         topic_label_symbol = '<a title="this feature PR has no topic label">⚠️</a>' if missing_topic_label else ""
         current_status = PRStatus.Closed if aggregate_info[pr.number].state == "closed" else all_pr_status[pr.number]
