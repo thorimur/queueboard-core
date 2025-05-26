@@ -193,6 +193,42 @@ STANDARD_ALIAS_MAPPING = """
   }
 """
 
+# Version of STANDARD_ALIAS_MAPPING tailored to the on_the_queue.html page.
+# Keep in sync with changes to the above table!
+ON_THE_QUEUE_ALIAS_MAPPING = """
+  // Return a table column index corresponding to a human-readable alias.
+  // |aliasOrIdx| is supposed to be an integer or a string;
+  // |show_approvals| is true iff this table contains a visible column of github approvals.
+  function getIdx (aliasOrIdx) {
+    switch (aliasOrIdx) {
+      case "number":
+        return 0;
+      case "author":
+        return 1;
+      case "title":
+        return 2;
+      case "fromFork":
+        return 3;
+      case "ciStatus":
+        return 4;
+      case "hasMergeConflict":
+        return 5
+      case "isBlocked":
+        return 6;
+      case "isReady":
+        return 7;
+      case "awaitingReview":
+        return 8;
+      case "missingTopicLabel":
+        return 10;
+      case "overallStatus":
+        return 11;
+      default:
+        return aliasOrIdx;
+    }
+  }
+"""
+
 
 # Template for configuring all datatables on a generated webpage.
 # Has two template parameters ALIAS_MAPPING and TABLE_CONFIGURATION.
@@ -265,43 +301,53 @@ $(document).ready( function () {
 """
 
 
-def tables_configuration_script(alias_mapping: str, table_test: str) -> str:
-    # NB. This is four-space indented, just like the eventual javascript code.
-    std_table_config = """
-    const tableId = $(this).attr('id')
-    let tableOptions = { ...options }
-    const show_approval = {table_test};
-    tableOptions.order = show_approval ? sort_config_approvals : sort_config;
-    $(this).DataTable(tableOptions);
-    """.strip().replace("{table_test}", table_test)
-    simple_table_config = """
-    const tableId = $(this).attr('id') || "";
-    if (tableId.startsWith("t-")) {
-      $(this).DataTable(options);
-    }
-    """.strip()
-    sort_config1 = """
-    // The configuration for initial sorting of tables, for tables with and without approvals.
-    let sort_config = [];
-    let sort_config_approvals = [];
-    """.strip().replace("    ", "  ")
-    sort_config2 = """
-    sort_config.push([getIdx(col, false), dir]);
-    sort_config_approvals.push([getIdx(col, true), dir]);
-    """.strip()
-
-    table_config = std_table_config if table_test != "" else simple_table_config
-    return (_TEMPLATE_SCRIPT.replace("{SORT_CONFIG1}", sort_config1).replace("{SORT_CONFIG2}", sort_config2)
+def tables_configuration_script(alias_mapping: str, test_tables_with_approval: str, omit_column_config=False) -> str:
+    # If table_test is not none, we have two sets of alias configurations,
+    # for tables with and without approval.
+    if test_tables_with_approval:
+        sort_config1 = """
+        // The configuration for initial sorting of tables, for tables with and without approvals.
+        let sort_config = [];
+        let sort_config_approvals = [];
+        """.strip().replace("        ", "  ")
+        sort_config2 = """
+        sort_config.push([getIdx(col, false), dir]);
+        sort_config_approvals.push([getIdx(col, true), dir]);
+        """.strip().replace("        ", "  ")
+        table_config = """
+        const tableId = $(this).attr('id')
+        let tableOptions = { ...options }
+        const show_approval = {table_test};
+        tableOptions.order = show_approval ? sort_config_approvals : sort_config;
+        $(this).DataTable(tableOptions);
+        """.strip().replace("        ", "  ").replace("{table_test}", test_tables_with_approval)
+    else:
+        sort_config1 = """
+        // The configuration for initial sorting of tables.
+        let sort_config = [];
+        """.strip().replace("        ", "  ")
+        sort_config2 = "sort_config.push([getIdx(col), dir]);"
+        table_config = """
+        const tableId = $(this).attr('id') || "";
+        if (tableId.startsWith("t-")) {
+          $(this).DataTable(options);
+        }
+        """.replace("        ", "  ").strip()
+    template = (_TEMPLATE_SCRIPT.replace("{SORT_CONFIG1}", sort_config1).replace("{SORT_CONFIG2}", sort_config2)
         .replace("{ALIAS_MAPPING}", alias_mapping).replace("{TABLE_CONFIGURATION}", table_config))
+    if omit_column_config:
+        # NB. This is brittle; keep in sync with other changes!
+        template = template.replace("    columnDefs: ", "    // columnDefs: ")
+    return template
 
 
 # NB: keep this list in sync with any dashboard using ExtraColumnSettings.show_approvals(...).
 TABLES_WITH_APPROVALS = [Dashboard.QueueStaleUnassigned, Dashboard.QueueStaleAssigned, Dashboard.Approved]
 table_test = " || ".join([f'tableId == "{getTableId(kind)}"' for kind in TABLES_WITH_APPROVALS])
 
-# This javascript code is placed at the bottom of each dashboard page.
+# This javascript code is placed at the bottom of each generated webpage page
+# (except for the on_the_queue page, which tweaks this slightly).
 STANDARD_SCRIPT = tables_configuration_script(STANDARD_ALIAS_MAPPING, table_test)
-
 
 # Settings for which 'extra columns' to display in a PR dashboard.
 class ExtraColumnSettings(NamedTuple):
@@ -725,11 +771,12 @@ def write_on_the_queue_page(
         "PR's overall status",
     ]
     head = _write_table_header(headings, "    ")
-    table = f"  <table>\n{head}{body}  </table>"
+    table = f"  <table id='t-prs'>\n{head}{body}  </table>"
     # FUTURE: can this time be displayed in the local time zone of the user viewing this page?
     updated = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")
     start = f"  <h1>Why is my PR not on the queue?</h1>\n  <small>This page was last updated on: {updated}</small>"
-    write_webpage(f"{start}\n{EXPLANATION_ON_THE_QUEUE_PAGE}\n{table}", "on_the_queue.html")
+    script = tables_configuration_script(ON_THE_QUEUE_ALIAS_MAPPING, "", True)
+    write_webpage(f"{start}\n{EXPLANATION_ON_THE_QUEUE_PAGE}\n{table}", "on_the_queue.html", custom_script=script)
 
 
 def write_overview_page(updated: str) -> None:
