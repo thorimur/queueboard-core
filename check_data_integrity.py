@@ -337,20 +337,27 @@ def compare_data_aggressive() -> List[int]:
         for pr in page["data"]["search"]["nodes"]:
             parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
             # dependabot PRs don't have a login name in their REST API data; handle this gracefully.
-            author = pr["author"]["login"] if "login" in pr["author"] else "dependabot?"
-            url = pr["author"]["url"]
-            if url != f'https://github.com/{author}':
-                print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
+            if "login" in pr["author"]:
+                author = pr["author"]["login"]
+                url = pr["author"]["url"]
+                if url != f'https://github.com/{author}':
+                    print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
+            else:
+                author = "dependabot?"
             rest_data.append(RESTData(
                 int(pr["number"]), pr["url"], author, pr["title"], pr["state"], pr["updatedAt"], parsed_labels
             ))
     for page in data2["output"]:
         for pr in page["data"]["search"]["nodes"]:
             parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
-            author = pr["author"]["login"] if "login" in pr["author"] else "dependabot?"
-            url = pr["author"]["url"]
-            if url != f'https://github.com/{author}':
-                print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
+            # dependabot PRs don't have a login name in their REST API data; handle this gracefully.
+            if "login" in pr["author"]:
+                author = pr["author"]["login"]
+                url = pr["author"]["url"]
+                if url != f'https://github.com/{author}':
+                    print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
+            else:
+                author = "dependabot?"
             rest_data.append(RESTData(
                 int(pr["number"]), pr["url"], author, pr["title"], pr["state"], pr["updatedAt"], parsed_labels
             ))
