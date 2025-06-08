@@ -33,6 +33,7 @@ jobs:
         scripts/backfill.sh ${{ github.event.client_payload.pr_number }} 2>&1 | tee backfill.log
 
     - name: Commit changes
+      id: "commit"
       env:
         NUMBER: ${{ github.event.client_payload.pr_number }}
       run: |
@@ -42,7 +43,7 @@ jobs:
         git commit -m 'Update data/'
 
     - name: Push changes
-      uses: ad-m/github-push-action@v0.8.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: master
+      if: ${{ !cancelled() }} && steps.commit.outcome == 'success'
+      run: |
+        # XXX: this is not robust against other incoming changes
+        git push
