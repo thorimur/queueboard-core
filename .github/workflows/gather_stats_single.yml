@@ -16,6 +16,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         # Careful: this script must NOT be run on a stubborn PR, otherwise this logic breaks.
+        # (A stubborn PR would have a directory data/NUMBER-basic.)
         sparse-checkout: |
           data/${{ github.event.client_payload.pr_number }}
           scripts
