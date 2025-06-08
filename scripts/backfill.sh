@@ -20,8 +20,7 @@ CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # This script does not perform any rate limiting: make sure to do so yourself!
 
-# TODO: re-enable this check later!
-# stubborn_prs=$(cat "stubborn_prs.txt" | grep --invert-match "^--" | sort | uniq)
+stubborn_prs=$(cat "stubborn_prs.txt" | grep --invert-match "^--" | sort | uniq)
 
 # NB: keep this function in sync with download_missing_outdated_PRs.sh
 # |download_normal $pr| downloads 'normal' info for the PR '$pr' into the appropriate directory.
@@ -42,15 +41,23 @@ function download_normal {
     mv -f $tmpdir/ $dir/
 }
 
+# |download_stubborn $pr| downloads "stubborn" info for the PR '$pr' into the appropriate directory.
+function download_stubborn {
+  local dir="data/$1-basic"
+  mkdir -p "$dir"
+  scripts/basic_pr_info.sh "$1" | jq '.' > "$dir/basic_pr_info.json"
+  echo "$CURRENT_TIME" > "$dir/timestamp.txt"
+}
+
 for prnumber in "$@"
 do
-  download_normal $prnumber
-  # if [[ $stubborn_prs == *$prnumber* ]]; then
-  #   echo "PR $prnumber is stubborn: backfilling these is not supported yet!"
-  # else
-  #   echo "Backfilling/re-downloading data for PR #$prnumber"
-  #   download_normal $prnumber
-  # fi
+  # Make sure to only match whole-word boundaries, i.e. PRs 15158 or 19585 being stubborn
+  # does not mean PR 58 should be treated as stubborn.
+  if [[ -n $(echo $stubborn_prs | grep -w "$prnumber") ]]; then
+    download_stubborn $prnumber
+  else
+    download_normal $prnumber
+  fi
 done
 
 echo "Backfilling/re-downloading run completed successfully"
