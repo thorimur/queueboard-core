@@ -21,6 +21,27 @@ from state_evolution import first_time_on_queue, last_status_update, total_queue
 from util import eprint, parse_json_file, relativedelta_tryParse, timedelta_tostr
 
 
+def parse_dependencies(description: str) -> List[int]:
+    """Parse dependency information from PR description.
+    
+    Extracts PR numbers from lines like:
+    - [x] depends on: #24880 [optional extra text]
+    - [ ] depends on: #24881 [optional extra text]
+    
+    Returns a list of PR numbers as integers.
+    """
+    if not description:
+        return []
+    
+    # Pattern matches both checked [x] and unchecked [ ] dependencies
+    # Captures the PR number after the #
+    pattern = r'- \[[ x]\] depends on: #(\d+)'
+    matches = re.findall(pattern, description, re.IGNORECASE)
+    
+    # Convert to integers and return
+    return [int(pr_num) for pr_num in matches]
+
+
 # Determine a PR's CI status: the return value is one of "pass", "fail", "fail-inessential" and "running".
 # (Queued or waiting also count as running, cancelled CI counts as failing.)
 # 'CI_check_nodes' is an array of JSON data of all checks for all the commits.
@@ -237,6 +258,8 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
             approvals.append(r["author"]["login"])
     number_comments = len(inner["comments"]["nodes"])
     (is_incomplete, commenters) = _compute_commenter_data(pr_data)
+    # Parse dependency information from the PR description
+    depends_on = parse_dependencies(description)
     # NB. When adding future fields, pay attention to whether the 'basic' info files
     # also contain this information --- otherwise, it is fine to omit it!
     aggregate_data = {
@@ -269,6 +292,7 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
         },
         "assignees": assignees,
         "review_approvals": approvals,
+        "depends_on": depends_on,
     }
     if not only_basic_info:
         number_review_comments = 0
