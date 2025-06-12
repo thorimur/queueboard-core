@@ -235,10 +235,10 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
             17374, 17532, 18007, 18421, 18830, 19494, 19984, 20392, 20402,
         ]
         # Until cursor handling has been implemented, these warnings do not add helpful information.
-        if num_events == 250 and len([n for n in inner["timelineItems"]["nodes"] if "__typename" not in n or n["__typename"] != "PullRequestCommit"]) == 0:
-            print(f"process.py: {state} PR {number} has exactly 250 events, all of which are commits: probably this data is incomplete! Consider re-downloading with pagination.", file=sys.stderr)
-        elif num_events == 250:
-            print(f"process.py: {state} PR {number} has exactly 250 events: probably this data is incomplete! Consider re-downloading with pagination.", file=sys.stderr)
+        # if num_events == 250 and len(events_not_commit) == 0:
+        #     print(f"process.py: {state} PR {number} has exactly 250 events, all of which are commits: probably this data is incomplete!", file=sys.stderr)
+        # elif num_events == 250:
+        #     print(f"process.py: {state} PR {number} has exactly 250 events: probably this data is incomplete, please double-check!", file=sys.stderr)
         num_commits = len(inner["commits"]["nodes"])
         if num_commits == 100 and state == "open":
             if number not in do_not_redownload:

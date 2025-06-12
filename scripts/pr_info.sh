@@ -9,4 +9,4 @@ REPO=mathlib4
 
 PR_NUMBER=$1
 
-gh api graphql --paginate -f owner=$OWNER -f repo=$REPO -F prNumber=$PR_NUMBER -F query=@pr_info.graphql | scripts/merge_paginated_timeline.py
+gh api graphql -f owner=$OWNER -f repo=$REPO -F prNumber=$PR_NUMBER -F query=@pr_info.graphql
