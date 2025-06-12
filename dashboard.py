@@ -6,10 +6,11 @@
 
 import json
 import sys
+import re
 from datetime import datetime, timedelta, timezone
 from os import path
 from random import shuffle
-from typing import List, NamedTuple, Tuple
+from typing import List, NamedTuple, Tuple, Dict
 
 from dateutil import parser, relativedelta, tz
 
@@ -19,6 +20,96 @@ from compute_dashboard_prs import (AggregatePRInfo, BasicPRInformation, Label, D
     PLACEHOLDER_AGGREGATE_INFO, compute_pr_statusses, determine_pr_dashboards, infer_pr_url, link_to, parse_aggregate_file, gather_pr_statistics, _extract_prs)
 from mathlib_dashboards import Dashboard, short_description, long_description, getIdTitle, getTableId
 from util import format_delta
+
+
+def parse_dependencies(description: str) -> List[int]:
+    """Parse dependency information from PR description.
+    
+    Extracts PR numbers from lines like:
+    - [x] depends on: #24880 [optional extra text]
+    - [ ] depends on: #24881 [optional extra text]
+    
+    Returns a list of PR numbers as integers.
+    """
+    if not description:
+        return []
+    
+    # Pattern matches both checked [x] and unchecked [ ] dependencies
+    # Captures the PR number after the #
+    pattern = r'- \[[ x]\] depends on: #(\d+)'
+    matches = re.findall(pattern, description, re.IGNORECASE)
+    
+    # Convert to integers and return
+    return [int(pr_num) for pr_num in matches]
+
+
+def generate_dependency_graph(aggregate_info: Dict[int, AggregatePRInfo]) -> Dict:
+    """Generate dependency graph data in D3.js compatible format from aggregate PR information."""
+    nodes = []
+    links = []
+    
+    # Build dependency information for all PRs
+    pr_dependencies = {}
+    pr_dependents = {}
+    
+    for pr_number, pr_info in aggregate_info.items():
+        # Parse dependencies from PR description
+        depends_on = parse_dependencies(pr_info.description)
+        
+        # Filter to only include dependencies on PRs in our dataset
+        depends_on = [dep for dep in depends_on if dep in aggregate_info]
+        
+        pr_dependencies[pr_number] = depends_on
+        pr_dependents[pr_number] = []
+    
+    # Build reverse dependencies
+    for pr_number, depends_on in pr_dependencies.items():
+        for dep_pr in depends_on:
+            if dep_pr in pr_dependents:
+                pr_dependents[dep_pr].append(pr_number)
+    
+    # Create nodes
+    for pr_number, pr_info in aggregate_info.items():
+        pr_url = f"https://github.com/leanprover-community/mathlib4/pull/{pr_number}"
+        
+        # Check for draft status in labels
+        is_draft = pr_info.is_draft or any(label.name.lower() in ['wip', 'draft'] for label in pr_info.labels)
+        
+        nodes.append({
+            "id": pr_number,
+            "title": pr_info.title,
+            "author": pr_info.author,
+            "state": pr_info.state.lower(),
+            "is_draft": is_draft,
+            "labels": [label.name for label in pr_info.labels],
+            "url": pr_url,
+            "dependency_count": len(pr_dependencies.get(pr_number, [])),
+            "dependent_count": len(pr_dependents.get(pr_number, [])),
+            "additions": pr_info.additions,
+            "deletions": pr_info.deletions
+        })
+    
+    # Create links
+    for pr_number, depends_on in pr_dependencies.items():
+        for dep_pr in depends_on:
+            if dep_pr in aggregate_info:
+                links.append({
+                    "source": pr_number,
+                    "target": dep_pr,
+                    "source_state": aggregate_info[pr_number].state.lower(),
+                    "target_state": aggregate_info[dep_pr].state.lower()
+                })
+    
+    return {
+        "nodes": nodes,
+        "links": links,
+        "metadata": {
+            "total_prs": len(aggregate_info),
+            "prs_with_dependencies": len([deps for deps in pr_dependencies.values() if deps]),
+            "prs_that_are_dependencies": len([deps for deps in pr_dependents.values() if deps]),
+            "dependency_links": len(links)
+        }
+    }
 
 
 ### Reading the input files passed to this script ###
@@ -1155,6 +1246,13 @@ def main() -> None:
     proposed_reviews = suggest_reviewers_many(assignment_stats.assignments, reviewer_info, sorted(to_analyze[0:20]), aggregate_info)
     with open("automatic_assignments.json", "w") as fi:
         print(json.dumps(proposed_reviews, indent=4), file=fi)
+
+    # Generate dependency graph for the dependency dashboard
+    dependency_graph_data = generate_dependency_graph(aggregate_info)
+    with open("dependency_graph.json", "w") as f:
+        json.dump(dependency_graph_data, f, indent=2)
+    
+    print(f"Generated dependency graph with {dependency_graph_data['metadata']['dependency_links']} links between {dependency_graph_data['metadata']['total_prs']} PRs")
 
 
 if __name__ == "__main__":

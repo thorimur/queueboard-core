@@ -32,8 +32,7 @@ jobs:
     - name: "Regenerate the dashboard webpages"
       run: |
         python3 ./dashboard.py "all-open-PRs-1.json" "all-open-PRs-2.json"
-        python3 ./dependency_graph.py --d3 --output dependency_graph.json
-        rm *.json
+        rm all-open-PRs-*.json queue.json automatic_assignments.json
 
     - name: Commit and push changes
       run: |
