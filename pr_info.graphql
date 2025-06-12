@@ -1,4 +1,4 @@
-query($owner: String!, $repo: String!, $prNumber: Int!) {
+query($owner: String!, $repo: String!, $prNumber: Int!, $endCursor: String) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $prNumber) {
       additions
@@ -217,7 +217,11 @@ query($owner: String!, $repo: String!, $prNumber: Int!) {
       title
       updatedAt
       url
-      timelineItems(first: 250) {
+      timelineItems(first: 250, after: $endCursor) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
         nodes {
           __typename
           ... on PullRequestCommit {
