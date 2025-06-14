@@ -89,9 +89,10 @@ def canonicalise_label(name: str) -> str:
 
 # Describes the current status of a pull request in terms of the categories we care about.
 class PRStatus(Enum):
-    # This PR is opened from a fork of mathlib:
-    # in particular, CI cannot fully run, and this PR should be re-created from a branch of mathlib.
-    FromFork = auto()
+    # TODO: in August, re-instate reverted
+    # # This PR is opened from a fork of mathlib:
+    # # in particular, CI cannot fully run, and this PR should be re-created from a branch of mathlib.
+    # FromFork = auto()
     # This PR is marked as work in progress, is in draft state or CI fails.
     # CI running is ignored, as this ought to be intermittent.
     NotReady = auto()
@@ -122,7 +123,8 @@ class PRStatus(Enum):
     @staticmethod
     def to_str(self) -> str:
         return {
-            PRStatus.FromFork: "FromFork",
+            # TODO: in August, re-instate reverted
+            # PRStatus.FromFork: "FromFork",
             PRStatus.NotReady: "NotReady",
             PRStatus.Blocked: "Blocked",
             PRStatus.AwaitingReview: "AwaitingReview",
@@ -140,7 +142,8 @@ class PRStatus(Enum):
     @staticmethod
     def tryFrom_str(value: str):  #-> PRStatus | None:
         return {
-            "FromFork": PRStatus.FromFork,
+            # TODO: in August, re-instate reverted
+            # "FromFork": PRStatus.FromFork,
             "NotReady": PRStatus.NotReady,
             "Blocked": PRStatus.Blocked,
             "AwaitingReview": PRStatus.AwaitingReview,
@@ -173,8 +176,9 @@ def label_to_prstatus(label: LabelKind) -> PRStatus:
 def determine_PR_status(date: datetime, state: PRState) -> PRStatus:
     """Determine a PR's status from its state
     'date' is necessary as the interpretation of the awaiting-review label changes over time"""
-    if state.from_fork:
-        return PRStatus.FromFork
+    # TODO: in August, re-instate reverted
+    # if state.from_fork:
+    #     return PRStatus.FromFork
 
     # Failing (or missing or running) CI counts like the WIP label.
     # In particular, it is compared against other labels.
@@ -275,12 +279,13 @@ def test_determine_status() -> None:
         assert actual in allowed, f"expected PR status in {allowed} from labels {labels}, got {actual}"
         return actual
 
-    # PRs opened from a fork are directly handled as such.
-    # No matter what labels they have, their state is always "from a fork".
-    label_combinations = [[], [LabelKind.Other], [LabelKind.WIP], [LabelKind.MergeConflict], [LabelKind.Blocked]]
-    for combi in label_combinations:
-        check2(PRState(combi, CIStatus.Pass, False, True), PRStatus.FromFork)
-        check2(PRState(combi, CIStatus.Running, True, True), PRStatus.FromFork)
+    # TODO: in August, re-instate reverted
+    # # PRs opened from a fork are directly handled as such.
+    # # No matter what labels they have, their state is always "from a fork".
+    # label_combinations = [[], [LabelKind.Other], [LabelKind.WIP], [LabelKind.MergeConflict], [LabelKind.Blocked]]
+    # for combi in label_combinations:
+    #     check2(PRState(combi, CIStatus.Pass, False, True), PRStatus.FromFork)
+    #     check2(PRState(combi, CIStatus.Running, True, True), PRStatus.FromFork)
 
     # Tests for handling draft and CI state.
     # These take precedence over any other labels.
