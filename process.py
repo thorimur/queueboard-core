@@ -197,6 +197,11 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
         "author": author,
         "title": title,
         "description": description,
+        # TODO: parse the PR description and populate this field
+        # The numbers of the PRs which this PR directly depends on.
+        # This is automatically extracted from the PR description,
+        # hence only as good as the description.
+        "direct_dependencies": [],
         "label_names": labels,
         "additions": additions,
         "deletions": deletions,
