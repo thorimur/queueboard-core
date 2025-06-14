@@ -169,6 +169,39 @@ def parse_direct_dependencies(description: str) -> List[int]:
     return [int(pr_num) for pr_num in matches]
 
 
+def test_deps_parsing():
+    def check(input: str, expected: List[int]) -> None:
+        actual = parse_direct_dependencies(input)
+        aux = input.replace('\n', '\n  ')
+        assert expected == actual, f"expected direct dependencies {expected} from description\n  {aux}\ngot {actual}"
+    check("", [])
+    check("Some PR description without dependencies", [])
+    check("- [ ] depends on: #12", [12])
+    check("Some PR description\n- [x] depends on: #21", [21])
+    check("Some PR description\n- [x] depends on: #21\nSome furtherPR description\n- [x] depends on: #18", [21, 18])
+    check("Some PR description\n- [ ] depends on: #24880 [optional extra text]", [24880])
+    check("Some PR description\n- [x] depends on: #35000 [optional extra text]", [35000])
+    # Specifying the same PR number twice is only recorded once: TODO
+    check("Some PR description\n- [ ] depends on: #37\n\n- [x] depends on: #37", [37, 37])
+    # Dependencies without a checkbox are not recognised as such.
+    # XXX: audit all deps for such descriptions
+    check("- depends on: #12", [])
+    check("- [ ] depends on #12", [])
+    # Extra indentation in the dependency line does not matter. Extra things at the line beginning neither.
+    check("Some PR description\n   - [x] depends on: #21", [21])
+    check("Some PR description and now a dep. line- [x] depends on: #21", [21])
+
+    # Specifying PRs in other repos is not recognised.
+    check("Some PR description\n- [x] depends on: leanprover/lean4#21", [])
+    # Putting something bogus is not recognised either.
+    check("Some PR description\n- [ ] depends on: #xyz with lots of additional text", [])
+    # The standard PR template does not yield dependent PRs.
+    std = '- [ ] depends on: #abc [optional extra text]\r\n- [ ] depends on: #xyz [optional extra text]\r\n'
+    check(std, [])
+    # NB. We currently don't check if a PR number is inside the HTML comment.
+    check("<!--\n- [ ] depends on: #123 ->", [123])
+
+
 def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
     inner = pr_data["data"]["repository"]["pullRequest"]
     number = inner["number"]
@@ -300,6 +333,9 @@ def compute_infinity_cosmos_data(now: str, all_open_pr_items: dict) -> dict:
     return {"timestamp": now, "prs": prs}
 
 def main() -> None:
+    print("temp")
+    test_deps_parsing()
+    return
     fast = False
     if len(sys.argv) == 2:
         if sys.argv[1] == '--fast':
