@@ -6,7 +6,6 @@
 
 import json
 import sys
-import re
 from datetime import datetime, timedelta, timezone
 from os import path
 from random import shuffle
@@ -22,27 +21,10 @@ from mathlib_dashboards import Dashboard, short_description, long_description, g
 from util import format_delta
 
 
-def parse_dependencies(description: str) -> List[int]:
-    """Parse dependency information from PR description.
-    
-    Extracts PR numbers from lines like:
-    - [x] depends on: #24880 [optional extra text]
-    - [ ] depends on: #24881 [optional extra text]
-    
-    Returns a list of PR numbers as integers.
-    """
-    if not description:
-        return []
-    
-    # Pattern matches both checked [x] and unchecked [ ] dependencies
-    # Captures the PR number after the #
-    pattern = r'- \[[ x]\] depends on: #(\d+)'
-    matches = re.findall(pattern, description, re.IGNORECASE)
-    
-    # Convert to integers and return
-    return [int(pr_num) for pr_num in matches]
-
-
+# TODO: this code is AI-generated and has not been fully reviewed yet.
+# Do so before merging this PR.
+# TODO: move this analysis to process.py, and run it at data aggregation time?
+# Or will this become to slow, and it's better to only do so for all open PRs?
 def generate_dependency_graph(aggregate_info: Dict[int, AggregatePRInfo]) -> Dict:
     """Generate dependency graph data in D3.js compatible format from aggregate PR information."""
     nodes = []
@@ -53,18 +35,16 @@ def generate_dependency_graph(aggregate_info: Dict[int, AggregatePRInfo]) -> Dic
     pr_dependents = {}
     
     for pr_number, pr_info in aggregate_info.items():
-        # Parse dependencies from PR description
-        depends_on = parse_dependencies(pr_info.description)
+        direct_deps = pr_info.direct_dependencies
+        # Filter to only include dependencies on actual, open PRs.
+        direct_deps = [dep for dep in direct_deps if dep in aggregate_info]
         
-        # Filter to only include dependencies on PRs in our dataset
-        depends_on = [dep for dep in depends_on if dep in aggregate_info]
-        
-        pr_dependencies[pr_number] = depends_on
+        pr_dependencies[pr_number] = direct_deps
         pr_dependents[pr_number] = []
     
     # Build reverse dependencies
-    for pr_number, depends_on in pr_dependencies.items():
-        for dep_pr in depends_on:
+    for pr_number, direct_deps in pr_dependencies.items():
+        for dep_pr in direct_deps:
             if dep_pr in pr_dependents:
                 pr_dependents[dep_pr].append(pr_number)
     
@@ -90,8 +70,8 @@ def generate_dependency_graph(aggregate_info: Dict[int, AggregatePRInfo]) -> Dic
         })
     
     # Create links
-    for pr_number, depends_on in pr_dependencies.items():
-        for dep_pr in depends_on:
+    for pr_number, direct_deps in pr_dependencies.items():
+        for dep_pr in direct_deps:
             if dep_pr in aggregate_info:
                 links.append({
                     "source": pr_number,
