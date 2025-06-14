@@ -712,7 +712,8 @@ def write_on_the_queue_page(
             PRStatus.NotReady: ("is", "labelled WIP or marked draft"),
             PRStatus.Contradictory: ("has", "contradictory labels"),
             PRStatus.Closed: ("is", "closed (so shouldn't appear in this list)"),
-            PRStatus.FromFork: ("is", "opened from a fork"),
+            # TODO: in August, re-instate reverted
+            # PRStatus.FromFork: ("is", "opened from a fork"),
         }[current_status]
         if current_status == PRStatus.NotReady:
             # We emit more fine-grained information for "not ready" PRs.
@@ -848,7 +849,8 @@ def write_maintainers_quick_page(
         (Dashboard.StaleReadyToMerge, "stale PRs ready-to-merge", ""),
         (Dashboard.StaleMaintainerMerge, 'stale PRs labelled "maintainer merge"', ""),
         (Dashboard.AllMaintainerMerge, "all PRs labelled 'maintainer merge'", ""),
-        (Dashboard.FromFork, "all PRs made from a fork", ""),
+        # TODO: in August, re-instate reverted
+        # (Dashboard.FromFork, "all PRs made from a fork", ""),
         (Dashboard.NeedsDecision, "all PRs waiting on finding consensus on zulip", ""),
         (Dashboard.QueueTechDebt, "just the PRs addressing technical debt", ""),
     ]
@@ -883,12 +885,13 @@ def write_help_out_page(
             "just has a merge conflict, but would be reviewable otherwise",
             ". (Remember, that most contributors to mathlib are volunteers, contribute in their free time and often have other commitments — and that real-life events can happen!)",
         ),
-        (
-            Dashboard.FromFork,
-            "post a comment on a ",
-            "PR made from a fork",
-            ", nicely asking them to re-submit it from a mathlib branch instead",
-        ),
+        # TODO: in August, re-instate reverted
+        # (
+        #     Dashboard.FromFork,
+        #     "post a comment on a ",
+        #     "PR made from a fork",
+        #     ", nicely asking them to re-submit it from a mathlib branch instead",
+        # ),
         (
             Dashboard.StaleNewContributor,
             "check if any ",
@@ -952,7 +955,8 @@ def write_triage_page(
         getIdTitle(Dashboard.NeedsMerge),
         getIdTitle(Dashboard.StaleNewContributor),
         (getIdTitle(Dashboard.OtherBase)[0], "PRs not into master"),
-        (getIdTitle(Dashboard.FromFork)[0], "PRs from a fork"),
+        # TODO: in August, re-instate reverted
+        # (getIdTitle(Dashboard.FromFork)[0], "PRs from a fork"),
         getIdTitle(Dashboard.Approved),
         getIdTitle(Dashboard.All),
         ("other", "Other lists of PRs"),
@@ -1038,7 +1042,8 @@ def write_triage_page(
         Dashboard.NeedsMerge,
         Dashboard.StaleNewContributor,
         Dashboard.OtherBase,
-        Dashboard.FromFork,
+        # TODO: in August, re-instate reverted
+        # Dashboard.FromFork,
         Dashboard.Approved,
         Dashboard.All,
     ]

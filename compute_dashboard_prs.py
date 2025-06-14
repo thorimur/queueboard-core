@@ -299,7 +299,8 @@ def gather_pr_statistics(
         PRStatus.AwaitingReview, PRStatus.Blocked, PRStatus.AwaitingAuthor, PRStatus.MergeConflict,
         PRStatus.HelpWanted,PRStatus.NotReady,
         PRStatus.AwaitingDecision,
-        PRStatus.FromFork,
+        # TODO: in August, re-instate reverted
+        # PRStatus.FromFork,
         PRStatus.Contradictory,
         PRStatus.Delegated, PRStatus.AwaitingBors,
     ]
@@ -335,7 +336,8 @@ def gather_pr_statistics(
         PRStatus.HelpWanted: f"are labelled help-wanted or please-adopt ({link_to(Dashboard.NeedsHelp, 'roughly these', 'help_out.html', is_triage_board)})",
         PRStatus.AwaitingAuthor: "are awaiting the PR author's action",
         PRStatus.AwaitingDecision: f"are awaiting the outcome of a zulip discussion ({link_to(Dashboard.NeedsDecision)})",
-        PRStatus.FromFork: f"are opened from a fork of mathlib ({link_to(Dashboard.FromFork)})",
+        # TODO: in August, re-instate reverted
+        # PRStatus.FromFork: f"are opened from a fork of mathlib ({link_to(Dashboard.FromFork)})",
         PRStatus.Blocked: "are blocked on another PR",
         PRStatus.Delegated: f"are delegated (stale ones are {link_to(Dashboard.StaleDelegated, 'here', 'help_out.html', is_triage_board)})",
         PRStatus.AwaitingBors: f"have been sent to bors (stale ones are {link_to(Dashboard.StaleReadyToMerge, 'here', 'maintainers_quick.html', is_triage_board)})",
@@ -349,7 +351,7 @@ def gather_pr_statistics(
         PRStatus.HelpWanted: "#cc317c",
         PRStatus.AwaitingAuthor: "#f6ae9a",
         PRStatus.AwaitingDecision: "#086ad4",
-        PRStatus.FromFork: "#FF8000",
+        # PRStatus.FromFork: "#FF8000",
         PRStatus.Blocked: "#8A6A1C",
         PRStatus.Delegated: "#689dea",
         PRStatus.AwaitingBors: "#098306",
@@ -434,7 +436,8 @@ def determine_pr_dashboards(
     all_ready_prs = prs_without_label(nondraft_PRs, "WIP")
     prs_to_list[Dashboard.TechDebt] = prs_with_any_label(all_ready_prs, ["tech debt", "longest-pole"])
     prs_to_list[Dashboard.OtherBase] = [pr for pr in nondraft_PRs if base_branch[pr.number] != "master"]
-    prs_to_list[Dashboard.FromFork] = prs_from_fork
+    # TODO: in August, re-instate reverted
+    # prs_to_list[Dashboard.FromFork] = prs_from_fork
 
     prs_to_list[Dashboard.NeedsHelp] = prs_with_any_label(nondraft_PRs, ["help-wanted", "please_adopt"])
     prs_to_list[Dashboard.NeedsDecision] = prs_with_label(nondraft_PRs, "awaiting-zulip")

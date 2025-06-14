@@ -110,7 +110,7 @@ def _compute_weight(pr: int, data: AggregatePRInfo) -> float:
                     return 1 / (delta.days + 1)
         case PRStatus.Delegated | PRStatus.AwaitingBors:
             return 0
-        case PRStatus.Closed | PRStatus.Contradictory | PRStatus.NotReady | PRStatus.FromFork:
+        case PRStatus.Closed | PRStatus.Contradictory | PRStatus.NotReady: # | PRStatus.FromFork:
             return 0
         case PRStatus.HelpWanted:
             return 0  # arguably also fine
