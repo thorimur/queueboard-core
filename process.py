@@ -202,6 +202,7 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
         # This is automatically extracted from the PR description,
         # hence only as good as the description.
         "direct_dependencies": [],
+        # TODO: compute transitive dependencies and include in this data
         "label_names": labels,
         "additions": additions,
         "deletions": deletions,

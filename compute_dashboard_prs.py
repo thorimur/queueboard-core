@@ -112,6 +112,9 @@ class AggregatePRInfo(NamedTuple):
     # everything before the first "---" line becomes the final commit message.
     # Information about dependent PRs is noted after the fold.
     description: str
+    # The numbers of all PRs which this one directly depends on
+    # (as parsed from the PR description).
+    direct_dependencies: List[int]
     # All labels assigned to this PR.
     labels: List[Label]
     additions: int
@@ -140,7 +143,7 @@ class AggregatePRInfo(NamedTuple):
 PLACEHOLDER_AGGREGATE_INFO = AggregatePRInfo(
     False, CIStatus.Missing, "master", "leanprover-community", "default-branch-name",
     "open", datetime.now(timezone.utc),
-    "unknown", "unknown title", "unknown description", [], -1, -1, [], -1, [], [], (DataStatus.Missing, []), None, None, None, None,
+    "unknown", "unknown title", "unknown description", [], [], -1, -1, [], -1, [], [], (DataStatus.Missing, []), None, None, None, None,
 )
 
 
@@ -207,7 +210,7 @@ def parse_aggregate_file(data: dict) -> dict[int, AggregatePRInfo]:
             total_queue_time = None
         info = AggregatePRInfo(
             pr["is_draft"], CIStatus.from_string(pr["CI_status"]), pr["base_branch"], pr["branch_name"], pr["head_repo"]["login"],
-            pr["state"], date, pr["author"], pr["title"], pr["description"], [toLabel(name) for name in label_names],
+            pr["state"], date, pr["author"], pr["title"], pr["description"], pr["direct_dependencies"], [toLabel(name) for name in label_names],
             pr["additions"], pr["deletions"], pr["files"], pr["num_files"], pr["review_approvals"], pr["assignees"],
             users_commented, number_all_comments, last_status_change, first_on_queue, total_queue_time,
         )
