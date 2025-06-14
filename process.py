@@ -10,6 +10,7 @@ we list
 """
 
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from os import listdir, path
@@ -147,6 +148,27 @@ def _compute_commenter_data(pr_data: dict) -> Tuple[bool, List[str]]:
     return (is_incomplete, sorted(list(users)))
 
 
+def parse_direct_dependencies(description: str) -> List[int]:
+    """Parse dependency information from a PR description.
+
+    Extracts PR numbers from lines like:
+    - [x] depends on: #24880 [optional extra text]
+    - [ ] depends on: #24881 [optional extra text]
+
+    Returns a list of PR numbers as integers.
+    """
+    if not description:
+        return []
+
+    # Pattern matches both checked [x] and unchecked [ ] dependencies
+    # Captures the PR number after the #
+    pattern = r'- \[[ x]\] depends on: #(\d+)'
+    matches = re.findall(pattern, description, re.IGNORECASE)
+
+    # Convert to integers and return
+    return [int(pr_num) for pr_num in matches]
+
+
 def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
     inner = pr_data["data"]["repository"]["pullRequest"]
     number = inner["number"]
@@ -197,11 +219,11 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
         "author": author,
         "title": title,
         "description": description,
-        # TODO: parse the PR description and populate this field
+        # TODO: add tests for this methods and check that it returns sane results
         # The numbers of the PRs which this PR directly depends on.
         # This is automatically extracted from the PR description,
         # hence only as good as the description.
-        "direct_dependencies": [],
+        "direct_dependencies": parse_direct_dependencies(description),
         # TODO: compute transitive dependencies and include in this data
         "label_names": labels,
         "additions": additions,
