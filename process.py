@@ -159,14 +159,12 @@ def parse_direct_dependencies(description: str) -> List[int]:
     """
     if not description:
         return []
-
     # Pattern matches both checked [x] and unchecked [ ] dependencies
-    # Captures the PR number after the #
+    # Captures the PR number after the #. Allows both content before and after the pattern.
     pattern = r'- \[[ x]\] depends on: #(\d+)'
     matches = re.findall(pattern, description, re.IGNORECASE)
-
-    # Convert to integers and return
-    return [int(pr_num) for pr_num in matches]
+    # Remove duplicate numbers; sort for determinism.
+    return sorted(list(set([int(pr_num) for pr_num in matches])))
 
 
 def test_deps_parsing():
@@ -178,11 +176,11 @@ def test_deps_parsing():
     check("Some PR description without dependencies", [])
     check("- [ ] depends on: #12", [12])
     check("Some PR description\n- [x] depends on: #21", [21])
-    check("Some PR description\n- [x] depends on: #21\nSome furtherPR description\n- [x] depends on: #18", [21, 18])
+    check("Some PR description\n- [x] depends on: #21\nSome furtherPR description\n- [x] depends on: #18", [18, 21])
     check("Some PR description\n- [ ] depends on: #24880 [optional extra text]", [24880])
     check("Some PR description\n- [x] depends on: #35000 [optional extra text]", [35000])
-    # Specifying the same PR number twice is only recorded once: TODO
-    check("Some PR description\n- [ ] depends on: #37\n\n- [x] depends on: #37", [37, 37])
+    # Specifying the same PR number twice is only recorded once
+    check("Some PR description\n- [ ] depends on: #37\n\n- [x] depends on: #37", [37])
     # Dependencies without a checkbox are not recognised as such.
     # XXX: audit all deps for such descriptions
     check("- depends on: #12", [])
@@ -333,9 +331,6 @@ def compute_infinity_cosmos_data(now: str, all_open_pr_items: dict) -> dict:
     return {"timestamp": now, "prs": prs}
 
 def main() -> None:
-    print("temp")
-    test_deps_parsing()
-    return
     fast = False
     if len(sys.argv) == 2:
         if sys.argv[1] == '--fast':
