@@ -156,6 +156,9 @@ def update_state(current: PRState, ev: Event) -> PRState:
             # Any remaining labels to be removed should exist.
             new_labels = current.labels[:]
             for r in removed:
+                if r not in current.labels:
+                    print(f"warning: label {r} is supposedly removed twice")
+                    continue
                 new_labels.remove(label_categorisation_rules[r])
             return PRState(new_labels + [label_categorisation_rules[lab] for lab in added], current.ci, current.draft, current.from_fork)
         case _:
