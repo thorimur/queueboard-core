@@ -94,7 +94,7 @@ def _compute_status_change_data(pr_data: dict, number: int, is_incomplete: bool)
         12435, 12488, 12561, 13149, 13248, 13270, 13273, 13697, 14008, 14065,
         13089, # TODO: investigate more closely!
         3200, 6595,
-        9526, 9273, 12032, 25922,
+        9526, 9273, 12032, 25753, 25922,
     ]
     if number in bad_prs:
         missing = {"status": "missing"}
