@@ -1116,13 +1116,14 @@ def main() -> None:
     base_branch: dict[int, str] = dict()
     for pr in nondraft_PRs:
         base_branch[pr.number] = aggregate_info[pr.number].base_branch
-    prs_from_fork = [pr for pr in nondraft_PRs if aggregate_info[pr.number].head_repo != "leanprover-community"]
+    # TODO(August/September): re-instate this check and invert it
+    # prs_from_fork = [pr for pr in nondraft_PRs if aggregate_info[pr.number].head_repo != "leanprover-community"]
     all_pr_status = compute_pr_statusses(aggregate_info, input_data.all_open_prs)
     write_on_the_queue_page(all_pr_status, aggregate_info, nondraft_PRs, CI_status, base_branch)
 
     # TODO: try to enable |use_aggregate_queue| 'queue_prs' again, once all the root causes
     # for PRs getting 'dropped' by 'gather_stats.sh' are found and fixed.
-    prs_to_list = determine_pr_dashboards(input_data.all_open_prs, nondraft_PRs, base_branch, prs_from_fork, CI_status, aggregate_info, False)
+    prs_to_list = determine_pr_dashboards(input_data.all_open_prs, nondraft_PRs, base_branch, CI_status, aggregate_info, False)
 
     # FUTURE: can this time be displayed in the local time zone of the user viewing this page?
     updated = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")

@@ -98,8 +98,8 @@ class AggregatePRInfo(NamedTuple):
     base_branch: str
     # The name of this PR's branch.
     branch_name: str
-    # The repository this PR was opened from: should be 'leanprover-community',
-    # otherwise it is a PR from a fork.
+    # The repository this PR was opened from: should not be 'leanprover-community',
+    # i.e. a PR opened from a fork of mathlib
     head_repo: str
     # 'open' for open PRs, 'closed' for closed PRs
     state: str
@@ -426,7 +426,7 @@ def determine_pr_dashboards(
     all_open_prs: List[BasicPRInformation],
     nondraft_PRs: List[BasicPRInformation],
     base_branch: dict[int, str],
-    prs_from_fork: List[BasicPRInformation],
+    # TODO(August/September): re-instate this table, with inverted meaning prs_from_fork: List[BasicPRInformation],
     CI_status: dict[int, CIStatus],
     aggregate_info: dict[int, AggregatePRInfo],
     use_aggregate_queue: bool,
@@ -434,7 +434,7 @@ def determine_pr_dashboards(
     approved = [pr for pr in nondraft_PRs if aggregate_info[pr.number].approvals]
     prs_to_list: dict[Dashboard, List[BasicPRInformation]] = dict()
     prs_to_list[Dashboard.All] = all_open_prs
-    # The 'tech debt', 'other base' and 'from fork' boards are obtained
+    # The 'tech debt' and 'other base' boards are obtained
     # from filtering the list of all non-draft PRs (without the WIP label).
     all_ready_prs = prs_without_label(nondraft_PRs, "WIP")
     prs_to_list[Dashboard.TechDebt] = prs_with_any_label(all_ready_prs, ["tech debt", "longest-pole"])
@@ -450,7 +450,6 @@ def determine_pr_dashboards(
     # that are not in draft state and not labelled WIP, help-wanted or please-adopt,
     # and have none of the other labels below.
     master_prs_with_CI = [pr for pr in nondraft_PRs if base_branch[pr.number] == "master" and (CI_status[pr.number] == CIStatus.Pass)]
-    master_CI_notfork = [pr for pr in master_prs_with_CI if pr not in prs_from_fork]
     other_labels = [
         # XXX: does the #queue check for all of these labels?
         "blocked-by-other-PR",
@@ -467,12 +466,12 @@ def determine_pr_dashboards(
         "auto-merge-after-CI",
         "ready-to-merge",
     ]
-    queue_or_merge_conflict = prs_without_any_label(master_CI_notfork, other_labels)
+    queue_or_merge_conflict = prs_without_any_label(master_prs_with_CI, other_labels)
     prs_to_list[Dashboard.NeedsMerge] = prs_with_label(queue_or_merge_conflict, "merge-conflict")
     queue_prs = prs_without_label(queue_or_merge_conflict, "merge-conflict")
 
     interesting_CI = [pr for pr in nondraft_PRs if CI_status[pr.number] == CIStatus.FailInessential]
-    foo = [pr for pr in interesting_CI if base_branch[pr.number] == "master" and pr not in prs_from_fork]
+    foo = [pr for pr in interesting_CI if base_branch[pr.number] == "master"]
     prs_to_list[Dashboard.InessentialCIFails] = prs_without_any_label(foo, other_labels + ["merge-conflict"])
 
     queue_prs2 = None
