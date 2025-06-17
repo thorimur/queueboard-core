@@ -601,7 +601,6 @@ def write_webpage(body: str, outfile: str, use_tables: bool = True, custom_scrip
 EXPLANATION_ON_THE_QUEUE_PAGE = """
 <p>To appear on the review queue, your open pull request must...</p>
 <ul>
-<li>be opened from the mathlib repository itself (not from a fork),</li>
 <li>be based on the <em>master</em> branch of mathlib,</li>
 <li>pass mathlib's CI,</li>
 <li>not be blocked by another PR (as marked by the labels <em>blocked-by-other-PR</em> and similar)</li>
@@ -658,14 +657,14 @@ TIPS_AND_TRICKS = f"""  <h2 id="tips-and-tricks"><a href="#tips-and-tricks">Tips
 
 # Print a webpage "why is my PR not on the queue" to the file "on_the_queue.html".
 # 'prs' is the list of PRs on which to print information;
-# 'prs_from_fork' is the list of such PRs which are opened from a fork of mathlib,
 # 'CI_status' states, for each PR, whether PR passes, fails or is still running (or we are missing information).
 # 'base_branch' returns the pase branch of each PR.
+# Future: add a check for PRs which are *not* opened from a fork of mathlib.
 def write_on_the_queue_page(
     all_pr_status: dict[int, PRStatus],
     aggregate_info: dict[int, AggregatePRInfo],
     prs: List[BasicPRInformation],
-    prs_from_fork: List[BasicPRInformation],
+    # prs_from_fork: List[BasicPRInformation],
     CI_status: dict[int, CIStatus],
     base_branch: dict[int, str],
 ) -> None:
@@ -677,7 +676,7 @@ def write_on_the_queue_page(
     for pr in prs:
         if base_branch[pr.number] != "master":
             continue
-        from_fork = pr in prs_from_fork
+        # from_fork = pr in prs_from_fork
         status_symbol = {
             CIStatus.Pass: f'<a title="CI for this pull request passes">{icon(True)}</a>',
             CIStatus.Fail: f'<a title="CI for this pull request fails">{icon(False)}</a>',
@@ -755,14 +754,18 @@ def write_on_the_queue_page(
                 status += '<a title="caution: this data is likely incomplete">*</a>'
         entries = [
             pr_link(pr.number, pr.url), user_filter_link(name, "on_the_queue.html", ""), title_link(pr.title, pr.url),
-            _write_labels(pr.labels, "on_the_queue.html", ""), icon(not from_fork), status_symbol[CI_status[pr.number]],
+            _write_labels(pr.labels, "on_the_queue.html", ""),
+            # icon(not from_fork), # TODO(August/September): re-instate with inverted meaning
+            status_symbol[CI_status[pr.number]],
             icon(not is_blocked), icon(not has_merge_conflict), icon(is_ready), icon(review), icon(overall),
             topic_label_symbol, status
         ]
         result = _write_table_row(entries, "    ")
         body += result
     headings = [
-        "Number", "Author", "Title", "Labels", "not from a fork?", "CI status?",
+        "Number", "Author", "Title", "Labels",
+        # TODO(August/September): re-instate with inverted meaning "not from a fork?",
+        "CI status?",
         '<a title="not labelled with blocked-by-other-PR, blocked-by-batt-PR, blocked-by-core-PR, blocked-by-qq-PR">not blocked?</a>',
         "no merge conflict?",
         '<a title="not in draft state or labelled as in progress">ready?</a>',
@@ -1115,7 +1118,7 @@ def main() -> None:
         base_branch[pr.number] = aggregate_info[pr.number].base_branch
     prs_from_fork = [pr for pr in nondraft_PRs if aggregate_info[pr.number].head_repo != "leanprover-community"]
     all_pr_status = compute_pr_statusses(aggregate_info, input_data.all_open_prs)
-    write_on_the_queue_page(all_pr_status, aggregate_info, nondraft_PRs, prs_from_fork, CI_status, base_branch)
+    write_on_the_queue_page(all_pr_status, aggregate_info, nondraft_PRs, CI_status, base_branch)
 
     # TODO: try to enable |use_aggregate_queue| 'queue_prs' again, once all the root causes
     # for PRs getting 'dropped' by 'gather_stats.sh' are found and fixed.
