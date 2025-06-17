@@ -807,7 +807,7 @@ def write_overview_page(updated: str) -> None:
   </ul>
 </details>"""
     welcome = "\n  ".join(welcome.splitlines())
-    feedback = '<p>Feedback (including bug reports and ideas for improvements) on this dashboard is very welcome, for instance <a href="https://github.com/jcommelin/queueboard">directly on the github repository</a>.</p>'
+    feedback = '<p>Feedback (including bug reports and ideas for improvements) on this dashboard is very welcome, for instance <a href="https://github.com/leanprover-community/queueboard">directly on the github repository</a>.</p>'
     body = f"{title}\n  {welcome}\n  {feedback}\n  <p><small>This dashboard was last updated on: {updated}</small></p>\n\n{TIPS_AND_TRICKS}\n"
     write_webpage(body, "index.html", use_tables=False)
 
