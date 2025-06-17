@@ -99,6 +99,7 @@ def _compute_status_change_data(pr_data: dict, number: int, is_incomplete: bool)
     if number in bad_prs:
         missing = {"status": "missing"}
         return (missing, missing, missing)
+    # print(f"trace: computing state changes for PR {number}")
 
     # PRs with "missing" status are the ones above; basic PRs omit this field.
     validity_status = "incomplete" if is_incomplete else "valid"
