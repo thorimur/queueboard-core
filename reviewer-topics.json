@@ -276,5 +276,17 @@
     "zulip_handle": "@**Heather Macbeth**",
     "top_level": ["t-differential-geometry", "t-analysis"],
     "free_form": "geometry, analysis"
+  },
+  {
+    "github_handle": "robin-carlier",
+    "zulip_handle": "@**Robin Carlier**",
+    "top_level": ["t-topology", "t-category-theory"],
+    "free_form": "I’m mainly interested in things around category theory, especially things with higher-categorical/homotopical flavors. Most familiar with the CategoryTheory/ stuff, and stuff in AlgebraicTopology that deals with simplicial sets/simplicial objects."
+  },
+  {
+    "github_handle": "JovanGerb",
+    "zulip_handle": "@** Jovan Gerbscheid **",
+    "top_level": ["t-meta", "t-euclidean-geometry"],
+    "free_form": "tactics; core features such as unification, type class search and simp; performance improvements (in the above); elaboration/delaboration; Euclidean geometry"
   }
 ]
