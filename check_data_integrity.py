@@ -447,7 +447,10 @@ def main() -> None:
             outdated_prs.append(pr_number)
         elif ci_status == CIStatus.Missing and aggregate_last_updated[pr_number].state == "open":
             print(f"outdated data: PR {pr_number} has missing CI data")
-            outdated_prs.append(pr_number)
+            # When there are actual PRs to re-download, don't include PRs with merely missing CI data in them.
+            # Future: if all commits are old enough, don't re-ask at all.
+            if len(outdated_prs) < 5:
+                outdated_prs.append(pr_number)
 
     outdated_prs.extend(outdated_aggressive)
 
