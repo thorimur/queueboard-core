@@ -23,7 +23,7 @@ from util import format_delta
 
 # TODO: this code is AI-generated and has not been fully reviewed yet.
 # TODO: move this analysis to process.py, and run it at data aggregation time?
-Or will this become too slow, and it is better to only do so for all open PRs?
+# Or will this become too slow, and it is better to only do so for all open PRs?
 def generate_dependency_graph(aggregate_info: Dict[int, AggregatePRInfo]) -> Dict:
     """Generate dependency graph data in D3.js compatible format from aggregate PR information."""
     nodes = []
