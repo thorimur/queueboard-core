@@ -708,6 +708,7 @@ TIPS_AND_TRICKS = f"""  <h2 id="tips-and-tricks"><a href="#tips-and-tricks">Tips
       <li>{code_link("review_dashboard.html?sort=totalTimeReview-desc#queue")} sorts the #queue table by total time in review (in descending order),</li>
       <li>{code_link("triage.html=?search=manifold&sort=author-asc&length=10#all")} shows all PRs which contain the string "manifold" in their entry or PR description, sorted by author (in ascending order), with 10 items per page, and</li>
       <li>{code_link("on_the_queue.html?search=jcommelin&length=100")} shows the status of all PRs by <code>jcommelin</code></li>
+      <li>{code_link("dependency_dashboard.html?search=carleson")} shows visualises dependencies between all PRs from the Carleson project (i.e., with the Carleson label)
     </ul>
   <details><summary>Reference-level explanation of search syntax</summary>
   The <code>search</code> parameter filters all tables on a page by default.
