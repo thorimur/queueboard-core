@@ -56,7 +56,7 @@ This script depends on quite a bit of file state:
 - the entire `data` directory
 - the aggregate json files
 - all text files about files to (re-)download
-- input files `all-open-prs-{1,2}.json` with current data about all open PRs,
+- input files `all-open-prs-{1,2,3}.json` with current data about all open PRs,
   to compare this with the data in the aggregate files
 It modifies these *.txt files, and deletes any directories in `data` with obsolete data.
 
@@ -123,6 +123,7 @@ There are several levels at which this project can be tested. Currently, there a
 - `state_evolution.py` has unit tests in the file `test_state_evolution.py`: running either `python3 test_state_evolution.py` or `nose` will run them
 
 Changes to just `dashboard.py` can be tested using the JSON files in the `test` directory.
+(Since August 2025, the workflows also produce a third test JSON file, but passing only two works just as well.)
 Doing so requires a one-time set-up step: create a copy of the two relevant test files in the top-level directory. For instance, you can run `ln test/all-open-PRs-1.json all-open-PRs-1.json && ln test/all-open-PRs-2.json all-open-PRs-2.json`. (Another option is simply copying over these files.)
 Once this is done, you can run `python3 dashboard.py all-open-PRs-1.json all-open-PRs-2.json` (in the top-level directory) to execute the script. If you just want to test everything still works, you're done.
 Caution: to view the generated file, make sure to read the file in the top-level directory (otherwise, the .css file is not found.)

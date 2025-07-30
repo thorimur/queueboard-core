@@ -2,7 +2,7 @@
 
 """
 This script checks if all files in the `data` directory are up to date,
-by comparing their time stamps with the data in the files `all-open-PRs-{1,2}.json`.
+by comparing their time stamps with the data in the files `all-open-PRs-{1,2,3}.json`.
 
 This script assumes these files exist.
 """
@@ -337,34 +337,23 @@ def compare_data_aggressive() -> List[int]:
         data1 = json.load(fi)
     with open("all-open-PRs-2.json", "r") as fi:
         data2 = json.load(fi)
-    for page in data1["output"]:
-        for pr in page["data"]["search"]["nodes"]:
-            parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
-            # dependabot PRs don't have a login name in their REST API data; handle this gracefully.
-            if "login" in pr["author"]:
-                author = pr["author"]["login"]
-                url = pr["author"]["url"]
-                if url != f'https://github.com/{author}':
-                    print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
-            else:
-                author = "dependabot?"
-            rest_data.append(RESTData(
-                int(pr["number"]), pr["url"], author, pr["title"], pr["state"], pr["updatedAt"], parsed_labels
-            ))
-    for page in data2["output"]:
-        for pr in page["data"]["search"]["nodes"]:
-            parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
-            # dependabot PRs don't have a login name in their REST API data; handle this gracefully.
-            if "login" in pr["author"]:
-                author = pr["author"]["login"]
-                url = pr["author"]["url"]
-                if url != f'https://github.com/{author}':
-                    print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
-            else:
-                author = "dependabot?"
-            rest_data.append(RESTData(
-                int(pr["number"]), pr["url"], author, pr["title"], pr["state"], pr["updatedAt"], parsed_labels
-            ))
+    with open("all-open-PRs-3.json", "r") as fi:
+        data3 = json.load(fi)
+    for data in [data1, data2, data3]:
+        for page in data["output"]:
+            for pr in page["data"]["search"]["nodes"]:
+                parsed_labels = [Label(lab["name"], lab["color"], lab["url"]) for lab in pr["labels"]["nodes"]]
+                # dependabot PRs don't have a login name in their REST API data; handle this gracefully.
+                if "login" in pr["author"]:
+                    author = pr["author"]["login"]
+                    url = pr["author"]["url"]
+                    if url != f'https://github.com/{author}':
+                        print("warning: PR author {author} has URL {url}, which is unexpected", file=sys.stderr)
+                else:
+                    author = "dependabot?"
+                rest_data.append(RESTData(
+                    int(pr["number"]), pr["url"], author, pr["title"], pr["state"], pr["updatedAt"], parsed_labels
+                ))
     with open(os.path.join("processed_data", "all_pr_data.json"), "r") as f:
         aggregate_data = parse_aggregate_file(json.load(f))
     return compare_data_inner(rest_data, aggregate_data)
