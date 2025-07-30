@@ -82,8 +82,7 @@ jobs:
       if: ${{ !cancelled() }} && (steps.download-json.outcome == 'success')
       run: |
         python3 ./dashboard.py "all-open-PRs-1.json" "all-open-PRs-2.json"
-        rm all-open-PRs-1.json
-        rm all-open-PRs-2.json
+        rm all-open-PRs-*.json queue.json
 
     - name: Commit and push changes
       if: ${{ !cancelled() }} && (steps.download-json.outcome == 'success')
@@ -99,6 +98,8 @@ jobs:
         mv maintainers_quick.html tmp4.html
         mv help_out.html tmp5.html
         mv triage.html tmp6.html
+        mv dependency_dashboard.html tmp7.html
+        mv dependency_graph.json tmp8.json
         git fetch --depth 1 origin gh-pages
         git checkout gh-pages
         mv tmp0.json automatic_assignments.json
@@ -108,6 +109,8 @@ jobs:
         mv tmp4.html maintainers_quick.html
         mv tmp5.html help_out.html
         mv tmp6.html triage.html
+        mv tmp7.html dependency_dashboard.html
+        mv tmp8.json dependency_graph.json
         git add automatic_assignments.json
         git add index.html
         git add on_the_queue.html
@@ -115,6 +118,8 @@ jobs:
         git add maintainers_quick.html
         git add help_out.html
         git add triage.html
+        git add dependency_dashboard.html
+        git add dependency_graph.json
         git checkout master -- style.css
         git commit -m "Update dashboard" -a || echo "No changes to commit"
         git push
