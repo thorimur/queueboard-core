@@ -862,7 +862,7 @@ def write_overview_page(updated: str) -> None:
   <a href="maintainers_quick.html"><button>For maintainers (quick)</button></a>
   <a href="help_out.html"><button>Help out</button></a>
   <a href="triage.html"><button>Triage dashboard</button></a>
-  <!-- <a href="dependency_dashboard.html"><button>Dependency graph</button></a> -->
+  <a href="dependency_dashboard.html"><button>Dependency graph</button></a>
 </div><p></p>
 <div class="btn-group"><a href="on_the_queue.html"><button>Why is my PR not on the queue? Can I see all my PRs?</button></a></div><p></p>
 <div class="btn-group"><a href="triage.html#all"><button>What's going on? Just show me all open PRs, please!</button></a></div><p></p>
@@ -877,7 +877,7 @@ def write_overview_page(updated: str) -> None:
     If you actually have some more time at your hands, the <a href="review_dashboard.html">page for reviewers</a> or the <a href="triage.html">triage dashboard</a> should be useful.</li>
     <li>Would you just like to <strong>help out</strong>? <a href="help_out.html">This page</a> collects PRs where help was requested, or where some quick action can be useful.</li>
     <li>Are you coming here for <strong>PR triage</strong>: looking for PRs stuck in some state, and would like to move them along? The <a href="triage.html">triage dashboard</a> has the ultimate collection of all public information.</li>
-    <!-- <li>Want to visualize <strong>dependency relationships</strong> between PRs? The <a href="dependency_dashboard.html">dependency graph</a> shows which PRs are blocked by others and helps identify unblocked work.</li> -->
+    <li>Want to visualize <strong>dependency relationships</strong> between PRs? The <a href="dependency_dashboard.html">dependency graph</a> shows which PRs are blocked by others and helps identify unblocked work.</li>
     <!-- 'hidden' page for maintainers to assign reviewers must be generated locally, by running a script -->
   </ul>
 </details>"""
