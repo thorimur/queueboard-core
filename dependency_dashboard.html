@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>PR Dependency Graph Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
@@ -251,7 +252,6 @@
                 updateStats(data.metadata);
                 createVisualization(data);
                 document.getElementById("loading").style.display = "none";
-                
             } catch (error) {
                 console.error("Error loading data:", error);
                 document.getElementById("loading").innerHTML = 
