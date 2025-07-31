@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from os import listdir, path
 from typing import List, Tuple
 
+from ci_status import CIStatus
 from classify_pr_state import PRStatus
 from state_evolution import first_time_on_queue, last_status_update, total_queue_time
 from util import eprint, parse_json_file, relativedelta_tryParse, timedelta_tostr
@@ -86,7 +87,7 @@ def determine_ci_status(number, CI_check_nodes: dict) -> str:
 # - the total time a PR was on the review queue.
 # Each dictionary contains its answer status (which can be "missing", "incomplete" or "valid")
 # and (if data is present) the computed value.
-def _compute_status_change_data(pr_data: dict, number: int, is_incomplete: bool) -> Tuple[dict, dict, dict]:
+def _compute_status_change_data(pr_data: dict, CI_status: CIStatus, number: int, is_incomplete: bool) -> Tuple[dict, dict, dict]:
     # These particular PRs have one label noted as removed several times in a row.
     # This trips up my algorithm. Omit the analysis for now. FIXME: make smarter?
     bad_prs = [
@@ -114,6 +115,11 @@ def _compute_status_change_data(pr_data: dict, number: int, is_incomplete: bool)
     stringified = None if first_on_queue is None else datetime.strftime(first_on_queue, time_format)
     res_first_on_queue = {"status": validity_status, "date": stringified}
     (time, delta, current_status) = last_status_update(pr_data)
+    # XXX: as long as the overall status classification does not take CI status into account
+    # (and doing so is difficult in general!), we must take care to not simply use the last
+    # computed status, but override that when PR CI is failing.
+    if CI_status in [CIStatus.Fail, CIStatus.FailInessential, CIStatus.Missing]:
+        current_status = PRStatus.NotReady
     assert relativedelta_tryParse(repr(delta)) == delta
     res_last_status_change = {
         "status": validity_status,
@@ -305,7 +311,7 @@ def get_aggregate_data(pr_data: dict, only_basic_info: bool) -> dict:
                 print(f"process.py: {state} PR {number} has exactly 100 commits; please double-check if this data is complete", file=sys.stderr)
 
         # Compute information about this PR's real status changes, using the code in state_evolution.py.
-        (res_first_on_queue, res_last_status_change, res_total_queue_time) = _compute_status_change_data(pr_data, number, num_events == 250)
+        (res_first_on_queue, res_last_status_change, res_total_queue_time) = _compute_status_change_data(pr_data, CI_status, number, num_events == 250)
         aggregate_data["first_on_queue"] = res_first_on_queue
         aggregate_data["last_status_change"] = res_last_status_change
         aggregate_data["total_queue_time"] = res_total_queue_time
