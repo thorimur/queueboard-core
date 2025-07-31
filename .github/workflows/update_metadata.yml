@@ -28,7 +28,7 @@ jobs:
     - name: "Update aggregate data file"
       if: ${{ !cancelled() }}
       run: |
-        # Write files with aggregate PR data, to "processed_data/{all_pr,open_pr,assignment_}_data.json".
+        # Write files with aggregate PR data, to "processed_data/{all_pr,open_pr,assignment}_data.json".
         python3 process.py
 
     - name: "Download .json files for all open PRs"
@@ -54,7 +54,7 @@ jobs:
     - name: "Update aggregate data file (again)"
       if: ${{ !cancelled() }}
       run: |
-        # Write files with aggregate PR data, to "processed_data/{all_pr,open_pr,assignment_}_data.json".
+        # Write files with aggregate PR data, to "processed_data/{all_pr,open_pr,assignment}_data.json".
         python3 process.py
 
     - name: Commit changes
