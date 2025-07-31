@@ -505,7 +505,7 @@ def _compute_pr_entries(
                     f"but the list of filenames only contains {len(pr_info.modified_files)}, "
                     "data is incomplete", file=sys.stderr)
             if status == DataStatus.Incomplete:
-                print("warning: PR {pr.number} supposedly has exactly 100 comments; data is likely incomplete", file=sys.stderr)
+                print(f"warning: PR {pr.number} supposedly has exactly 100 comments; data is likely incomplete", file=sys.stderr)
             if extra_settings.show_assignee:
                 match sorted(pr_info.assignees):
                     case []:
