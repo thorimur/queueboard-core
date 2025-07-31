@@ -230,7 +230,9 @@ def compute_pr_statusses(aggregate_info: dict[int, AggregatePRInfo], prs: List[B
         from_fork = aggregate_info.head_repo != "leanprover-community"
         state = PRState(labels, aggregate_info.CI_status, aggregate_info.is_draft, from_fork)
         return determine_PR_status(datetime.now(timezone.utc), state)
-
+    asdf = aggregate_info[7219]
+    print(asdf)
+    print(f"trace: computed status for 7219 is {determine_status(asdf)}")
     return {info.number: determine_status(aggregate_info[info.number] or PLACEHOLDER_AGGREGATE_INFO) for info in prs}
 
 
