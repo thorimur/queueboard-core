@@ -22,6 +22,7 @@ from util import eprint, parse_json_file, relativedelta_tryParse, timedelta_tost
 
 
 # Determine a PR's CI status: the return value is one of "pass", "fail", "fail-inessential" and "running".
+# (Missing CI data is filtered out before, hence cannot happen.)
 # (Queued or waiting also count as running, cancelled CI counts as failing.)
 # 'CI_check_nodes' is an array of JSON data of all checks for all the commits.
 def determine_ci_status(number, CI_check_nodes: dict) -> str:
@@ -80,13 +81,14 @@ def determine_ci_status(number, CI_check_nodes: dict) -> str:
 
 # Compute information about this PR's real status changes, using the code in state_evolution.py.
 # `is_incomplete` is True if the PR's data is known to be incomplete.
+# `CI_status` describes a PR's CI status (in the same format as `determine_CI_status`), or is None for missing data.
 # Return a tuple of three dictionaries, describing
 # - the first time a given PR was on the review queue,
 # - the last time a PR's status changed
 # - the total time a PR was on the review queue.
 # Each dictionary contains its answer status (which can be "missing", "incomplete" or "valid")
 # and (if data is present) the computed value.
-def _compute_status_change_data(pr_data: dict, CI_status: str, number: int, is_incomplete: bool) -> Tuple[dict, dict, dict]:
+def _compute_status_change_data(pr_data: dict, CI_status: str | None, number: int, is_incomplete: bool) -> Tuple[dict, dict, dict]:
     # These particular PRs have one label noted as removed several times in a row.
     # This trips up my algorithm. Omit the analysis for now. FIXME: make smarter?
     bad_prs = [
@@ -117,8 +119,9 @@ def _compute_status_change_data(pr_data: dict, CI_status: str, number: int, is_i
     # XXX: as long as the overall status classification does not take CI status into account
     # (and doing so is difficult in general!), we must take care to not simply use the last
     # computed status, but override that when PR CI is failing.
-    if CI_status in ["fail", "fail-inessential", "missing"]:
-        current_status = PRStatus.NotReady
+    if CI_status is not None:
+        if CI_status in ["fail", "fail-inessential"]:
+            current_status = PRStatus.NotReady
     assert relativedelta_tryParse(repr(delta)) == delta
     res_last_status_change = {
         "status": validity_status,
