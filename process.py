@@ -120,7 +120,7 @@ def _compute_status_change_data(pr_data: dict, CI_status: str | None, number: in
     # (and doing so is difficult in general!), we must take care to not simply use the last
     # computed status, but override that when PR CI is failing.
     if CI_status is not None:
-        if CI_status in ["fail", "fail-inessential"]:
+        if CI_status in ["fail", "fail-inessential", "running"]:
             current_status = PRStatus.NotReady
     assert relativedelta_tryParse(repr(delta)) == delta
     res_last_status_change = {
