@@ -231,8 +231,12 @@ def compute_pr_statusses(aggregate_info: dict[int, AggregatePRInfo], prs: List[B
         state = PRState(labels, aggregate_info.CI_status, aggregate_info.is_draft, from_fork)
         return determine_PR_status(datetime.now(timezone.utc), state)
     asdf = aggregate_info[7219]
-    print(f"all data for 7219 is {asdf}")
-    print(f"labels are {asdf.labels}")
+    # print(f"all data for 7219 is {asdf}")
+    print(f"trace: labels are {asdf.labels}")
+    labels2 = [label_categorisation_rules[lab.name] for lab in asdf.labels if lab.name in label_categorisation_rules]
+    state2 = PRState(labels2, asdf.CI_status, asdf.is_draft, False)
+    print(f"trace: re-computed state is {state2}")
+
     print(f"trace: computed status for 7219 is {determine_status(asdf)}")
     return {info.number: determine_status(aggregate_info[info.number] or PLACEHOLDER_AGGREGATE_INFO) for info in prs}
 
