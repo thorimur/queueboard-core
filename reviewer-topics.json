@@ -170,7 +170,7 @@
   {
     "github_handle": "mattrobball",
     "zulip_handle": "@**Matthew Ballard**",
-    "top_level": ["t-category-theory", "t-algebra", "t-algebraic-geometry", "t-commutative-algebra", "t-noncommutative-algebra", "t-stability", "t-group-actions", "t-mirror-symmetry"],
+    "top_level": ["t-category-theory", "t-algebra", "t-algebraic-geometry", "t-algebraic-topology", "t-commutative-algebra", "t-noncommutative-algebra", "t-stability", "t-group-actions", "t-mirror-symmetry"],
     "free_form": "Folders in mathlib: Algebra, AlgebraicGeometry, AlgebraicTopology, CategoryTheory, Data, FieldTheory, Geometry, GroupTheory, Lean, LinearAlgebra, NumberTheory, RepresentationTheory, RingTheory, Tactic, Topology, Util"
   },
   {
@@ -182,7 +182,7 @@
   {
     "github_handle": "dagurtomas",
     "zulip_handle": "@**Dagur Asgeirsson**",
-    "top_level": ["t-condensed", "t-category-theory", "t-algebra", "t-algebraic-geometry", "t-topology"],
+    "top_level": ["t-condensed", "t-category-theory", "t-algebra", "t-algebraic-geometry", "t-algebraic-topology", "t-topology"],
     "free_form": "I’m most competent in t-condensed and t-category-theory. I know the Topology/Category subfolder quite well, and I can review some algebraic geometry, homological algebra and algebraic topology PRs"
   },
   {
@@ -280,7 +280,7 @@
   {
     "github_handle": "robin-carlier",
     "zulip_handle": "@**Robin Carlier**",
-    "top_level": ["t-topology", "t-category-theory"],
+    "top_level": ["t-algebraic-topology", "t-category-theory"],
     "free_form": "I’m mainly interested in things around category theory, especially things with higher-categorical/homotopical flavors. Most familiar with the CategoryTheory/ stuff, and stuff in AlgebraicTopology that deals with simplicial sets/simplicial objects."
   },
   {
