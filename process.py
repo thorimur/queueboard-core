@@ -16,7 +16,6 @@ from datetime import datetime, timezone
 from os import listdir, path
 from typing import List, Tuple
 
-from ci_status import CIStatus
 from classify_pr_state import PRStatus
 from state_evolution import first_time_on_queue, last_status_update, total_queue_time
 from util import eprint, parse_json_file, relativedelta_tryParse, timedelta_tostr
@@ -87,7 +86,7 @@ def determine_ci_status(number, CI_check_nodes: dict) -> str:
 # - the total time a PR was on the review queue.
 # Each dictionary contains its answer status (which can be "missing", "incomplete" or "valid")
 # and (if data is present) the computed value.
-def _compute_status_change_data(pr_data: dict, CI_status: CIStatus, number: int, is_incomplete: bool) -> Tuple[dict, dict, dict]:
+def _compute_status_change_data(pr_data: dict, CI_status: str, number: int, is_incomplete: bool) -> Tuple[dict, dict, dict]:
     # These particular PRs have one label noted as removed several times in a row.
     # This trips up my algorithm. Omit the analysis for now. FIXME: make smarter?
     bad_prs = [
@@ -118,7 +117,7 @@ def _compute_status_change_data(pr_data: dict, CI_status: CIStatus, number: int,
     # XXX: as long as the overall status classification does not take CI status into account
     # (and doing so is difficult in general!), we must take care to not simply use the last
     # computed status, but override that when PR CI is failing.
-    if CI_status in [CIStatus.Fail, CIStatus.FailInessential, CIStatus.Missing]:
+    if CI_status in ["fail", "fail-inessential", "missing"]:
         current_status = PRStatus.NotReady
     assert relativedelta_tryParse(repr(delta)) == delta
     res_last_status_change = {
