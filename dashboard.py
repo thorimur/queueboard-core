@@ -111,7 +111,11 @@ def read_json_files() -> JSONInputData:
     for i in range(1, len(sys.argv)):
         with open(sys.argv[i]) as prfile:
             open_prs = _extract_prs(json.load(prfile))
-            if len(open_prs) >= 900:
+            if len(open_prs) >= 990:
+                print(f"error: file {sys.argv[i]} contains at least 990 PRs: the REST API will never return more than 1000 PRs. "
+                "Please split the list into more files as necessary. Erroring now as this means incomplete data (now or very soon).", file=sys.stderr)
+                sys.exit(1)
+            elif len(open_prs) >= 900:
                 print(f"warning: file {sys.argv[i]} contains at least 900 PRs: the REST API will never return more than 1000 PRs. Please split the list into more files as necessary.", file=sys.stderr)
             all_open_prs.extend(open_prs)
     with open(path.join("processed_data", "open_pr_data.json"), "r") as f:
