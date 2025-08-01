@@ -117,7 +117,8 @@
     "github_handle": "loefflerd",
     "zulip_handle": "@**David Loeffler**",
     "top_level": ["t-number-theory", "t-analysis"],
-    "free_form": "Algebraic and analytic number theory; also topology, real analysis, Fourier theory"
+    "free_form": "Algebraic and analytic number theory; also topology, real analysis, Fourier theory",
+    "auto_assign": false
   },
   {
     "github_handle": "ocfnash",
