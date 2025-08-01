@@ -267,6 +267,9 @@ STANDARD_ALIAS_MAPPING = """
   }
 """
 
+# Dashboard columns with a special sorting relation.
+STANDARD_COLUMN_DEFS = "columnDefs: [{ type: 'diff_stat', targets: 5 }, { type: 'assignee', targets: 10 }, { visible: false, targets: [3, 6, 9] } ],"
+
 # Version of STANDARD_ALIAS_MAPPING tailored to the on_the_queue.html page.
 # Keep in sync with changes to the above table!
 ON_THE_QUEUE_ALIAS_MAPPING = """
@@ -303,6 +306,8 @@ ON_THE_QUEUE_ALIAS_MAPPING = """
   }
 """
 
+ON_THE_QUEUE_COLUMN_DEFS = "columnDefs: [{ type: 'diff_stat', targets: 5 }, { visible: false, targets: [3, 6, 9] } ],"
+
 
 # Template for configuring all datatables on a generated webpage.
 # Has two template parameters ALIAS_MAPPING and TABLE_CONFIGURATION.
@@ -334,6 +339,13 @@ _TEMPLATE_SCRIPT = """
       }
     }
   })
+  // A PR assignee is sorted as a string; except that the string "nobody"
+  // (i.e., a PR is unassigned) is sorted last.
+  let assignee = DataTable.type('assignee', {
+    order: {
+      pre: function (data) { return (data == 'nobody') ? "zzzzzzzzzz" : data; }
+    },
+  });
 {ALIAS_MAPPING}
 $(document).ready( function () {
   // Parse the URL for any initial configuration settings.
@@ -360,7 +372,7 @@ $(document).ready( function () {
     stateDuration: 0,
     pageLength: pageLength,
     "searching": true,
-    columnDefs: [{ type: 'diff_stat', targets: 5 }, { visible: false, targets: [3, 6, 9] } ],
+    {COLUMN_DEFS}
     order: sort_config,
   };
   if (params.has("search")) {
@@ -375,7 +387,7 @@ $(document).ready( function () {
 """
 
 
-def tables_configuration_script(alias_mapping: str, test_tables_with_approval: str, omit_column_config=False) -> str:
+def tables_configuration_script(alias_mapping: str, column_defs: str, test_tables_with_approval: str, omit_column_config=False) -> str:
     # If table_test is not none, we have two sets of alias configurations,
     # for tables with and without approval.
     if test_tables_with_approval:
@@ -408,7 +420,8 @@ def tables_configuration_script(alias_mapping: str, test_tables_with_approval: s
         }
         """.replace("        ", "  ").strip()
     template = (_TEMPLATE_SCRIPT.replace("{SORT_CONFIG1}", sort_config1).replace("{SORT_CONFIG2}", sort_config2)
-        .replace("{ALIAS_MAPPING}", alias_mapping).replace("{TABLE_CONFIGURATION}", table_config))
+        .replace("{ALIAS_MAPPING}", alias_mapping).replace("{TABLE_CONFIGURATION}", table_config)
+        .replace("{COLUMN_DEFS}", column_defs))
     if omit_column_config:
         # NB. This is brittle; keep in sync with other changes!
         template = template.replace("    columnDefs: ", "    // columnDefs: ")
@@ -421,7 +434,7 @@ table_test = " || ".join([f'tableId == "{getTableId(kind)}"' for kind in TABLES_
 
 # This javascript code is placed at the bottom of each generated webpage page
 # (except for the on_the_queue page, which tweaks this slightly).
-STANDARD_SCRIPT = tables_configuration_script(STANDARD_ALIAS_MAPPING, table_test)
+STANDARD_SCRIPT = tables_configuration_script(STANDARD_ALIAS_MAPPING, STANDARD_COLUMN_DEFS, table_test)
 
 # Settings for which 'extra columns' to display in a PR dashboard.
 class ExtraColumnSettings(NamedTuple):
@@ -854,7 +867,7 @@ def write_on_the_queue_page(
     # FUTURE: can this time be displayed in the local time zone of the user viewing this page?
     updated = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")
     start = f"  <h1>Why is my PR not on the queue?</h1>\n  <small>This page was last updated on: {updated}</small>"
-    script = tables_configuration_script(ON_THE_QUEUE_ALIAS_MAPPING, "", True)
+    script = tables_configuration_script(ON_THE_QUEUE_ALIAS_MAPPING, ON_THE_QUEUE_COLUMN_DEFS, "", True)
     write_webpage(f"{start}\n{EXPLANATION_ON_THE_QUEUE_PAGE}\n{table}", "on_the_queue.html", custom_script=script)
 
 
