@@ -42,6 +42,9 @@ class ReviewerInfo(NamedTuple):
     # This can be explicitly specified by the "auto-assign" field in the reviewer info file.
     # If the field is missing, we assume a reviewer is willing to be assigned.
     is_on_rotation: bool
+    # If a reviewer is currently on holiday: while true, a reviewer is not auto-assigned
+    # any pull requests.
+    is_on_holiday: bool
 
 
 def read_reviewer_info() -> List[ReviewerInfo]:
@@ -56,6 +59,7 @@ def read_reviewer_info() -> List[ReviewerInfo]:
             entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"],
             entry["maximum_capacity"] if "maximum_capacity" in entry else DEFAULT_CAPACITY,
             entry["auto_assign"] if "auto_assign" in entry else True,
+            entry["on_holiday"] if "on_holiday" in entry else False,
         )
         for entry in reviewer_topics
     ]
@@ -238,7 +242,7 @@ def suggest_reviewers(
         available_with_weights = [
             (rev.github, rev.maximum_capacity - n_weighted)
             for (rev, _areas, n_weighted) in with_curr_assignments
-            if n_weighted < rev.maximum_capacity and rev.is_on_rotation
+            if n_weighted < rev.maximum_capacity and (rev.is_on_rotation and not rev.is_on_holiday)
         ]
         all_available_reviewers = [rev for (rev, _n) in available_with_weights]
         chosen_reviewer = None
