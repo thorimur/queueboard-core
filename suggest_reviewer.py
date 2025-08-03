@@ -45,6 +45,10 @@ class ReviewerInfo(NamedTuple):
     # If a reviewer is currently on holiday: while true, a reviewer is not auto-assigned
     # any pull requests.
     is_on_holiday: bool
+    # Github handles of users that this reviewer has a conflict of interest with
+    # (for instance, since they supervised the author for an academic project or thesis).
+    # Never suggest assigning this reviewer for this author.
+    conflict_of_interest: List[str]
 
 
 def read_reviewer_info() -> List[ReviewerInfo]:
@@ -60,6 +64,7 @@ def read_reviewer_info() -> List[ReviewerInfo]:
             entry["maximum_capacity"] if "maximum_capacity" in entry else DEFAULT_CAPACITY,
             entry["auto_assign"] if "auto_assign" in entry else True,
             entry["on_holiday"] if "on_holiday" in entry else False,
+            entry["conflict_of_interest"] if "conflict_of_interest" in entry else []
         )
         for entry in reviewer_topics
     ]
@@ -185,9 +190,10 @@ def suggest_reviewers(
         for rev in reviewers:
             reviewer_lab = rev.top_level
             match = [lab for lab in topic_labels if lab in reviewer_lab]
-            # Do not propose a PR's author as potential reviewer.
-            if rev.github != info.author:
-              matching_reviewers.append((rev, match))
+            # Do not propose a PR's author as potential reviewer,
+            # nor suggest any reviewers who have a conflict of interest with the PR author.
+            if rev.github not in ([info.author] + rev.conflict_of_interest):
+                matching_reviewers.append((rev, match))
     else:
         # Do not propose a PR's author as potential reviewer.
         matching_reviewers = [(rev, []) for rev in reviewers if rev.github != info.author]
