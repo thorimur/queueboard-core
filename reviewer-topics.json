@@ -8,7 +8,7 @@
   {
     "github_handle": "kbuzzard",
     "zulip_handle": "@**Kevin Buzzard**",
-    "top_level": ["t-number-theory", "t-algebra"],
+    "top_level": ["t-number-theory", "t-algebra", "t-ring-theory"],
     "free_form": ""
   },
   {
@@ -32,8 +32,8 @@
   {
     "github_handle": "erdOne",
     "zulip_handle": "@**Andrew Yang**",
-    "top_level": ["t-algebraic-geometry", "t-commutative-algebra", "t-category-theory"],
-    "free_form": ""
+    "top_level": ["t-algebraic-geometry", "t-ring-theory", "t-algebra", "t-category-theory"],
+    "free_form": "commutative algebra"
   },
   {
     "github_handle": "awainverse",
@@ -159,7 +159,7 @@
   {
     "github_handle": "mariainesdff",
     "zulip_handle": "@**María Inés de Frutos Fernández**",
-    "top_level": ["t-number-theory", "t-algebra"],
+    "top_level": ["t-number-theory", "t-algebra", "t-ring-theory"],
     "free_form": ""
   },
   {
@@ -171,13 +171,13 @@
   {
     "github_handle": "mattrobball",
     "zulip_handle": "@**Matthew Ballard**",
-    "top_level": ["t-category-theory", "t-algebra", "t-algebraic-geometry", "t-algebraic-topology", "t-commutative-algebra", "t-noncommutative-algebra", "t-stability", "t-group-actions", "t-mirror-symmetry"],
+    "top_level": ["t-category-theory", "t-algebra", "t-algebraic-geometry", "t-algebraic-topology", "t-group-theory", "t-commutative-algebra", "t-noncommutative-algebra", "t-ring-theory", "t-stability", "t-group-actions", "t-mirror-symmetry"],
     "free_form": "Folders in mathlib: Algebra, AlgebraicGeometry, AlgebraicTopology, CategoryTheory, Data, FieldTheory, Geometry, GroupTheory, Lean, LinearAlgebra, NumberTheory, RepresentationTheory, RingTheory, Tactic, Topology, Util"
   },
   {
     "github_handle": "faenuccio",
     "zulip_handle": "@**Filippo A. E. Nuccio**",
-    "top_level": ["t-algebraic-number-theory", "t-commutative-algebra", "t-homological-algebra"],
+    "top_level": ["t-algebraic-number-theory", "t-commutative-algebra", "t-homological-algebra", "t-ring-theory"],
     "free_form": "Functional Analysis, General Topology (because I like them a lot without being an expert)",
     "on_holiday": true
   },
@@ -203,7 +203,7 @@
   {
     "github_handle": "alreadydone",
     "zulip_handle": "@**Junyan Xu**",
-    "top_level": ["t-algebra", "t-algebraic-geometry", "t-number-theory", "t-topology", "t-set-theory"],
+    "top_level": ["t-algebra", "t-algebraic-geometry", "t-number-theory", "t-ring-theory", "t-topology", "t-set-theory"],
     "free_form": ""
   },
   {
@@ -233,7 +233,7 @@
   {
    "github_handle": "chrisflav",
    "zulip_handle": "@**Christian Merten**",
-   "top_level": ["t-algebra", "t-algebraic-geometry"],
+   "top_level": ["t-algebra", "t-ring-theory", "t-algebraic-geometry"],
    "free_form": ""
   },
   {
