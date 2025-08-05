@@ -118,7 +118,7 @@
     "zulip_handle": "@**David Loeffler**",
     "top_level": ["t-number-theory", "t-analysis"],
     "free_form": "Algebraic and analytic number theory; also topology, real analysis, Fourier theory",
-    "on_holiday": true
+    "temporary_break": true
   },
   {
     "github_handle": "ocfnash",
@@ -179,7 +179,7 @@
     "zulip_handle": "@**Filippo A. E. Nuccio**",
     "top_level": ["t-algebraic-number-theory", "t-commutative-algebra", "t-homological-algebra", "t-ring-theory"],
     "free_form": "Functional Analysis, General Topology (because I like them a lot without being an expert)",
-    "on_holiday": true
+    "temporary_break": true
   },
   {
     "github_handle": "dagurtomas",

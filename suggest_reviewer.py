@@ -42,9 +42,9 @@ class ReviewerInfo(NamedTuple):
     # This can be explicitly specified by the "auto-assign" field in the reviewer info file.
     # If the field is missing, we assume a reviewer is willing to be assigned.
     is_on_rotation: bool
-    # If a reviewer is currently on holiday: while true, a reviewer is not auto-assigned
-    # any pull requests.
-    is_on_holiday: bool
+    # If a reviewer is currently off the review rotation (say, because of many other work commitments
+    # or being on holiday): if true, a reviewer is not auto-assigned any pull requests.
+    is_temporarily_off_rotation: bool
     # Github handles of users that this reviewer has a conflict of interest with
     # (for instance, since they supervised the author for an academic project or thesis).
     # Never suggest assigning this reviewer for this author.
@@ -63,7 +63,7 @@ def read_reviewer_info() -> List[ReviewerInfo]:
             entry["github_handle"], entry["zulip_handle"], entry["top_level"], entry["free_form"],
             entry["maximum_capacity"] if "maximum_capacity" in entry else DEFAULT_CAPACITY,
             entry["auto_assign"] if "auto_assign" in entry else True,
-            entry["on_holiday"] if "on_holiday" in entry else False,
+            entry["temporary_break"] if "temporary_break" in entry else False,
             entry["conflict_of_interest"] if "conflict_of_interest" in entry else []
         )
         for entry in reviewer_topics
@@ -248,7 +248,7 @@ def suggest_reviewers(
         available_with_weights = [
             (rev.github, rev.maximum_capacity - n_weighted)
             for (rev, _areas, n_weighted) in with_curr_assignments
-            if n_weighted < rev.maximum_capacity and (rev.is_on_rotation and not rev.is_on_holiday)
+            if n_weighted < rev.maximum_capacity and (rev.is_on_rotation and not rev.is_temporarily_off_rotation)
         ]
         all_available_reviewers = [rev for (rev, _n) in available_with_weights]
         chosen_reviewer = None
