@@ -177,7 +177,7 @@
   {
     "github_handle": "faenuccio",
     "zulip_handle": "@**Filippo A. E. Nuccio**",
-    "top_level": ["t-algebraic-number-theory", "t-commutative-algebra", "t-homological-algebra", "t-ring-theory"],
+    "top_level": ["t-algebraic-number-theory", "t-commutative-algebra", "t-group-theory", "t-functional-analysis", "t-homological-algebra", "t-ring-theory"],
     "free_form": "Functional Analysis, General Topology (because I like them a lot without being an expert)",
     "temporary_break": true
   },
