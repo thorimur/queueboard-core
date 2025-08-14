@@ -93,7 +93,8 @@
     "github_handle": "adomani",
     "zulip_handle": "@**Damiano Testa**",
     "top_level": ["t-algebra", "t-linter"],
-    "free_form": "metaprogramming (because I like it, not because I feel that I am very skilled in it!)"
+    "free_form": "metaprogramming (because I like it, not because I feel that I am very skilled in it!)",
+    "temporary_break": true
   },
   {
     "github_handle": "adamtopaz",
