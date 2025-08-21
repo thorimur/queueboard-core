@@ -8,6 +8,7 @@ This script assumes these files exist.
 """
 
 import json
+import glob
 import os
 import shutil
 import sys
@@ -359,6 +360,36 @@ def compare_data_aggressive() -> List[int]:
     return compare_data_inner(rest_data, aggregate_data)
 
 
+def ensure_file(filename):
+    """
+    Ensure the file exists by joining split parts if necessary.
+    
+    Args:
+        filename (str): Path to the file (e.g., 'processed_data/all_pr_data.json')
+    
+    Returns:
+        str: Path to the complete file
+    """
+    if os.path.exists(filename):
+        return filename
+    
+    # Look for split parts (e.g., processed_data/all_pr_data.json.aa, processed_data/all_pr_data.json.ab, etc.)
+    parts = sorted(glob.glob(f"{filename}.*"))
+    # Filter out directories or other non-file matches if any
+    parts = [p for p in parts if os.path.isfile(p)]
+    
+    if not parts:
+        raise FileNotFoundError(f"Neither {filename} nor its split parts were found")
+    
+    # Join the parts into the original file
+    with open(filename, 'wb') as outfile:
+        for part in parts:
+            with open(part, 'rb') as infile:
+                outfile.write(infile.read())
+    
+    return filename
+
+
 # Read the last updated fields of the aggregate data file, and compare it with the
 # dates from querying github.
 def main() -> None:
@@ -389,7 +420,7 @@ def main() -> None:
     current_last_updated = extract_last_update_from_input()
     # "Last updated" information as found in the aggregate data file.
     aggregate_last_updated: dict[int, AggregateData] = dict()
-    with open(os.path.join("processed_data", "all_pr_data.json"), "r") as aggregate_file:
+    with open(ensure_file(os.path.join("processed_data", "all_pr_data.json")), "r") as aggregate_file:
         data = json.load(aggregate_file)
         for pr in data["pr_statusses"]:
             updated = pr["last_updated"]
