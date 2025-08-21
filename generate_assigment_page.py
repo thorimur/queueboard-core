@@ -8,6 +8,7 @@ Generate a webpage
 """
 
 import json
+import glob
 from os import path
 from typing import List
 
@@ -104,9 +105,38 @@ ALIAS_MAPPING = """
   }
 """
 
+def ensure_file(filename):
+    """
+    Ensure the file exists by joining split parts if necessary.
+    
+    Args:
+        filename (str): Path to the file (e.g., 'processed_data/all_pr_data.json')
+    
+    Returns:
+        str: Path to the complete file
+    """
+    if path.exists(filename):
+        return filename
+    
+    # Look for split parts (e.g., processed_data/all_pr_data.json.aa, processed_data/all_pr_data.json.ab, etc.)
+    parts = sorted(glob.glob(f"{filename}.*"))
+    # Filter out directories or other non-file matches if any
+    parts = [p for p in parts if path.isfile(p)]
+    
+    if not parts:
+        raise FileNotFoundError(f"Neither {filename} nor its split parts were found")
+    
+    # Join the parts into the original file
+    with open(filename, 'wb') as outfile:
+        for part in parts:
+            with open(part, 'rb') as infile:
+                outfile.write(infile.read())
+    
+    return filename
+
 
 def main() -> None:
-    with open(path.join("processed_data", "all_pr_data.json"), "r") as fi:
+    with open(ensure_file(path.join("processed_data", "all_pr_data.json")), "r") as fi:
         parsed = parse_aggregate_file(json.load(fi))
     stats = collect_assignment_statistics(parsed)
 
