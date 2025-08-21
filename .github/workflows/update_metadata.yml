@@ -64,6 +64,10 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git config --global user.name 'github-actions[bot]'
         git add data
+        # Split the large file before committing and remove original
+        # Can be reconstructed with `cat processed_data/all_pr_data.json.* > processed_data/all_pr_data.json`
+        split -b 10M processed_data/all_pr_data.json processed_data/all_pr_data.json.
+        rm -f processed_data/all_pr_data.json
         git add processed_data
         # These files may not exist, if there was no broken download to begin with resp. all metadata is up to date.
         rm -f broken_pr_data.txt
