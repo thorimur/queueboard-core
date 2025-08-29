@@ -38,8 +38,8 @@
   {
     "github_handle": "awainverse",
     "zulip_handle": "@**Aaron Anderson**",
-    "top_level": ["t-model-theory", "t-combinatorics"],
-    "free_form": ""
+    "top_level": ["t-logic", "t-combinatorics"],
+    "free_form": "model theory"
   },
   {
     "github_handle": "sgouezel",
@@ -68,7 +68,7 @@
   {
     "github_handle": "grunweg",
     "zulip_handle": "@**Michael Rothgang**",
-    "top_level": ["t-differential-geometry", "t-analysis", "t-topology", "t-linters", "tech debt"],
+    "top_level": ["t-differential-geometry", "t-analysis", "t-topology", "t-linter", "tech debt"],
     "free_form": ""
   },
   {
