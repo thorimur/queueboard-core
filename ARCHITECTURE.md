@@ -3,24 +3,32 @@
 This document describes the high-level architecture of the review dashboard. If you want to familiarize yourself with the code base, you are just in the right place!
 
 ## High-level overview
-This repository contains two separate, but related pieces of code.
+
+The queueboard is divided into two repositories:
+- [queueboard](https://github.com/leanprover-community/queueboard), which contains the GitHub workflows needed to generate the queueboard site as well as the data from mathlib4 PRs that are used in those workflows.
+- [queueboard-core](https://github.com/leanprover-community/queueboard-core), which contains all the other code used in creating the queueboard. (The workflows in the `queueboard` repo check out code and scripts from this repo and run them.)
+
+This repository (`queueboard-core`) contains two separate, but related pieces of code.
 
 The first half (the "backend") is infrastructure to query and download metadata about pull request on *mathlib*, tracking their state over time. (This covers all open pull requests, but --- as of February 2025 --- not all past PRs yet.)
-A github workflow periodically checks for updates on pull requests and downloads the current data for all pull requests with updates. This data is tracked in the repository: hence, this repository also functions as a cache of information, allowing to only download meta-data for updated PRs (as opposed to downloading all PRs' data each time the dashboard is re-generated).
+A github workflow in `queueboard` periodically checks for updates on pull requests and downloads the current data for all pull requests with updates, using files in this repo.
+This data is tracked in the `queueboard` repository: hence, that repository also functions as a cache of information, allowing to only download meta-data for updated PRs (as opposed to downloading all PRs' data each time the dashboard is re-generated).
 
-The second half (the "frontend") contains scripts and a github workflow to generate the mathlib triage and review dashboard, using the data from the previous step. Generating this dashboard proceeds by
+The second half (the "frontend") contains scripts to generate the mathlib triage and review dashboard, using the data from the previous step. Generating this dashboard proceeds by
 - generating a static webpage from this information
 - publishing the webpage using github pages
-These steps also are run regularly, using a cronjob.
+These steps also are run regularly, using a github workflow triggered by cronjob in the `queueboard` repo.
 
 As of February 2025, these steps are always run next to each other, every 8 minutes. Right after the backend data is updated, the webpage is regenerated accordingly. One workflow run takes about 3 minutes --- so all in all, this means the data on the dashboard has a latency of around ten minutes.
 (There are future plans to make both the downloading of updated metadata more "push-driven" (i.e., a PR update triggering a re-download automatically), which would allow for faster webpage updates.)
 
 
 ## Relevant files
-This section talks briefly about various important directories and data structures. Pay attention to the Architecture Invariant sections. They often talk about things which are deliberately absent in the source code.
+This section talks briefly about various important directories and data structures that are contained in the [queueboard](https://github.com/leanprover-community/queueboard) and [queueboard-core](https://github.com/leanprover-community/queueboard-core) repos.
+Pay attention to the Architecture Invariant sections. They often talk about things which are deliberately absent in the source code.
 
-**The backend: data gathering infrastructure**
+**Data in the `queueboard` repo**
+
 The `data` directory contains all downloaded data for all pull requests to the *mathlib* repository: this ought to contain data for all open pull requests. Data for closed pull requests is gradually being included (but currently, data for many such PRs is still missing).
 **Invariant.** All contents in `data` is directly downloaded using the Github API. Any post-processing of data happens in a separate directory. Apart from downloading, the `data` directory is only modified to remove broken data. If the repository contains any temporary files left from partial downloads, that is a bug in the downloading script.
 
@@ -44,6 +52,10 @@ the PR is marked as "stubborn" and listed in `stubborn_prs.txt` instead.
 - `closed_prs_to_backfill.txt` lists PRs which were closed a while ago: we want to collect their data, but this is not urgent.
 - `redownload.txt` contains PRs for which valid data exists, but that data is outdated: the current data should be downloaded again, but in the mean-time, we can keep the data we have
 
+**The backend: data gathering infrastructure**
+
+The scripts below are contained in the `queueboard-core` repo but run on data in the `queueboard` repo.
+
 `check_data_integrity.py` is a script to verify the contents of the downloaded data, and detect broken data. It performs a variety of small tasks
 - detect broken json files (and automatically removes them), marking PRs as stubborn if necessary
   The latter task also takes `broken_pr_data.txt` into account.
@@ -66,12 +78,17 @@ The actual downloading of new or updated metadata happens through two scripts.
 - `scripts/gather_stats.sh` queries the github API for all PRs updated in the past N minutes and downloads the data for all of them (overwriting any previous data).
 - `gather_stats_single.yml` is currently unused; TODO document what it is meant to do!
 
-All of this is orchestrated in the `update_metadata.yml` workflow, which calls the above scripts.
+The following workflow is contained in the `queueboard` repo:
+
+All of the above is orchestrated in the `update_metadata.yml` workflow, which calls the above scripts.
 **Invariant.** This is the only workflow which pushes modifies `data`, `processed_data` or the *.txt files on the master branch. The other workflow only updates the `gh-pages` branch.
 
 See `docs/Workflow ordering and design.md` for more detailed considerations of the workflow split, and describing the current architecture.
 
 **The frontend: generating webpages**
+
+The scripts below are contained in the `queueboard-core` repo but run on data in the `queueboard` repo.
+
 The main entry point to the frontend is a shell script `dashboard.sh`.
 - it queries github's API for current data on the open pull requests, saving the output into two JSON files
 - it then calls `dashboard.py` (with the JSON files passed as explicit arguments) to create a dashboard.
@@ -90,9 +107,6 @@ The data in the json files conceptually duplicates the aggregate data downloaded
 
 `generate_assignment_page.py` is a separate script generating a webpage `assign_reviewers.html` suggesting reviewers to assign to unassigned pull requests. This page is not generated by default, as it is aimed at mathlib maintainers.
 
-`.github/workflows/regenerate_dashboard.yml` defines the workflow updating the dashboard. It runs the above scripts to generate an up-to-date dashboard, and commits the updated HTML file on the `gh-pages` branch. That branch is deployed by github pages to create the webpage.
-**Invariant.** This workflow only writes to the `gh-pages` branch. It only reads data from the master branch.
-
 `style.css` contains all style rules for the generated webpage
 
 `util.py` contains two functions which are needed in otherwise unrelated scripts
@@ -108,6 +122,10 @@ The data in the json files conceptually duplicates the aggregate data downloaded
 `test` contains versions of all input files to this script, at some point in time. These can be used for locally testing `dashboard.py`.
 
 `send-zulip-dm.py` contains code for sending a direct message on zulip. This is currently unused, but may be used by `generate_assignment_page.py` in the future.
+
+The following workflow is contained in `queueboard`:
+
+`.github/workflows/regenerate_dashboard.yml` defines the workflow updating the dashboard. It runs the above scripts (`dashboard.py`, `generate_assignment_page.py` and other associated scripts) to generate an up-to-date dashboard, and commits the updated HTML file on the `gh-pages` branch. That branch is deployed by github pages to create the webpage.
 
 
 # Cross-cutting concerns
