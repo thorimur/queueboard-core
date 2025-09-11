@@ -81,6 +81,7 @@ The actual downloading of new or updated metadata happens through two scripts.
 The following workflow is contained in the `queueboard` repo:
 
 All of the above is orchestrated in the `update_metadata.yml` workflow, which calls the above scripts.
+
 **Invariant.** This is the only workflow which pushes modifies `data`, `processed_data` or the *.txt files on the master branch. The other workflow only updates the `gh-pages` branch.
 
 See `docs/Workflow ordering and design.md` for more detailed considerations of the workflow split, and describing the current architecture.
