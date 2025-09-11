@@ -125,7 +125,7 @@ The data in the json files conceptually duplicates the aggregate data downloaded
 
 The following workflow is contained in `queueboard`:
 
-`.github/workflows/regenerate_dashboard.yml` defines the workflow updating the dashboard. It runs the above scripts (`dashboard.py`, `generate_assignment_page.py` and other associated scripts) to generate an up-to-date dashboard, and commits the updated HTML file on the `gh-pages` branch. That branch is deployed by github pages to create the webpage.
+`.github/workflows/regenerate_dashboard.yml` defines the workflow updating the dashboard. It runs `dashboard.py` to generate an up-to-date dashboard, and commits the updated HTML file on the `gh-pages` branch. That branch is deployed by github pages to create the webpage.
 
 
 # Cross-cutting concerns
