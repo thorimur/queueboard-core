@@ -163,7 +163,9 @@
     "github_handle": "mariainesdff",
     "zulip_handle": "@**María Inés de Frutos Fernández**",
     "top_level": ["t-number-theory", "t-algebra", "t-ring-theory"],
-    "free_form": ""
+    "free_form": "",
+    "maximum_capacity": 5,
+    "temporary_break": true
   },
   {
     "github_handle": "TwoFX",
