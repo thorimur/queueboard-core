@@ -296,5 +296,11 @@
     "zulip_handle": "@** Jovan Gerbscheid **",
     "top_level": ["t-meta", "t-euclidean-geometry"],
     "free_form": "tactics; core features such as unification, type class search and simp; performance improvements (in the above); elaboration/delaboration; Euclidean geometry"
+  },
+  {
+    "github_handle" : "pechersky",
+    "zulip_handle" : "@**Yakov Pechersky**",
+    "top_level" : [ "t-algebra", "t-data", "t-order" ],
+    "free_form" : "discrete math, fin and fintype, bundled ordered algebraic structures, p-adic fields and nonarchimedean analysis"
   }
 ]
