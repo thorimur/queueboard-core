@@ -458,10 +458,11 @@ TIPS_AND_TRICKS = f"""  <h2 id="tips-and-tricks"><a href="#tips-and-tricks">Tips
   <li><strong>find PRs by modified file</strong>: search for a file name and find all PRs in a list which modify this file. Searching for several files finds all PRs which modify all these files. (Caveat: we only track the first 100 files each PR changes, so this may yield incomplete results for cross-cutting PRs. Such PRs are rare, however.)</li>
   <li><strong>find your PRs</strong>: searching for your user name returns all PRs you reviewed or commented on</li>
   <li><strong>search PR description</strong>: searching also searches a PR description, and the list of all users who ever commented on this PR. To find all PRs from the sphere-eversion project, searching for "sphere-eversion" (or "sphere eversion") should do the trick.</li>
-  <li><strong>configuration via URL</strong>: if you change table settings (sorting, search terms, and / or number of entries per page), those settings will appear as query parameters in the URL and automatically applied to all tables when you visit that URL again. Three short examples demonstrating the URL format:
+  <li><strong>configuration via URL</strong>: if you change table settings (sorting, search terms, and / or number of entries per page), those settings will appear as query parameters in the URL and will be automatically applied to all tables when you visit that URL again. You can also use the URL fragment (the portion after the `#`) to focus on a particular table; this can also be set in the URL by clicking on the name of the table on the page.
+  Three short examples demonstrating the URL format:
     <ul>
       <li>{code_link("review_dashboard.html?sort=totalTimeReview-desc#queue")} sorts the #queue table by total time in review (in descending order),</li>
-      <li>{code_link("triage.html?search=manifold&sort=author-asc&length=10#all")} shows all PRs which contain the string "manifold" in their entry or PR description, sorted by author (in ascending order), with 10 items per page, and</li>
+      <li>{code_link("triage.html?search=manifold&sort=author-asc&length=10#all")} shows all PRs which contain the string "manifold" in their entry or PR description, sorted by author (in ascending order), with 10 items per page,</li>
       <li>{code_link("on_the_queue.html?search=jcommelin&length=100")} shows the status of all PRs by <code>jcommelin</code></li>
       <li>{code_link("dependency_dashboard.html?search=carleson")} visualises dependencies between all PRs from the Carleson project (i.e., with the Carleson label)
     </ul>
