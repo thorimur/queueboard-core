@@ -283,7 +283,8 @@
     "github_handle": "hrmacbeth",
     "zulip_handle": "@**Heather Macbeth**",
     "top_level": ["t-differential-geometry", "t-analysis"],
-    "free_form": "geometry, analysis"
+    "free_form": "geometry, analysis",
+    "temporary_break": true
   },
   {
     "github_handle": "robin-carlier",
