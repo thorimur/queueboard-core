@@ -303,5 +303,11 @@
     "zulip_handle" : "@**Yakov Pechersky**",
     "top_level" : [ "t-algebra", "t-data", "t-order" ],
     "free_form" : "discrete math, fin and fintype, bundled ordered algebraic structures, p-adic fields and nonarchimedean analysis"
+  },
+  {
+    "github_handle": "thorimur",
+    "zulip_handle": "@**Thomas Murrills**",
+    "top_level": ["t-meta", "t-category-theory"],
+    "free_form": "Primarily focused on metaprogramming!"
   }
 ]
