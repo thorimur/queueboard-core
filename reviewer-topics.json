@@ -165,7 +165,7 @@
     "top_level": ["t-number-theory", "t-algebra", "t-ring-theory"],
     "free_form": "",
     "maximum_capacity": 5,
-    "temporary_break": true
+    "temporary_break": false
   },
   {
     "github_handle": "TwoFX",
